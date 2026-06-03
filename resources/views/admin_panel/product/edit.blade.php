@@ -2,8 +2,7 @@
 
 @section('content')
     {{-- 
-        EDIT PRODUCT: Modern Horizontal Layout
-        Based on Create Product UI
+        EDIT PRODUCT: Matches Create Product UI exactly
     --}}
     
     {{-- External Resources --}}
@@ -34,9 +33,9 @@
         }
 
         .page-container {
-            max-width: 1400px;
+            max-width: 1140px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 16px;
         }
 
         /* --- Global Cards --- */
@@ -45,12 +44,12 @@
             border-radius: var(--radius-lg);
             box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.06);
             border: 1px solid var(--border-color);
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             overflow: hidden;
         }
 
         .card-header-pro {
-            padding: 16px 24px;
+            padding: 12px 20px;
             border-bottom: 1px solid var(--border-color);
             background: #fff;
             display: flex;
@@ -59,7 +58,7 @@
         }
 
         .card-title-pro {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--text-main);
             display: flex;
@@ -69,24 +68,24 @@
         }
 
         .card-body-pro {
-            padding: 24px;
+            padding: 20px;
         }
 
         /* --- Form Styling --- */
         .form-label-pro {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             letter-spacing: 0.02em;
         }
 
         .form-control-pro {
             display: block;
             width: 100%;
-            padding: 10px 14px;
-            font-size: 0.95rem;
+            padding: 8px 12px;
+            font-size: 0.9rem;
             font-weight: 500;
             color: var(--text-main);
             background-color: #fff;
@@ -112,11 +111,11 @@
         /* --- Section 1: Identity Grid --- */
         .identity-wrapper {
             display: flex;
-            gap: 24px;
+            gap: 16px;
         }
         
         .image-section {
-            width: 280px;
+            width: 200px;
             flex-shrink: 0;
         }
 
@@ -126,7 +125,7 @@
 
         .img-uploader {
             width: 100%;
-            aspect-ratio: 1/1; /* Square for product */
+            aspect-ratio: 1/1;
             border: 2px dashed #cbd5e1;
             border-radius: var(--radius-lg);
             background: #f8fafc;
@@ -148,86 +147,85 @@
         .img-uploader img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Show full product */
+            object-fit: contain;
             padding: 10px;
         }
 
         /* --- Section 2: Specs --- */
         .specs-grid {
             display: grid;
-            grid-template-columns: 250px 1fr 300px;
-            gap: 24px;
+            grid-template-columns: 1fr 220px;
+            gap: 16px;
             align-items: start;
         }
 
-        /* Mode Switcher Vertical */
-        .mode-switcher-vertical {
+        /* Mode Switcher Horizontal Pills */
+        .mode-pills {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: #f8fafc;
-            padding: 12px;
+            gap: 4px;
+            background: #f1f5f9;
+            padding: 4px;
             border-radius: var(--radius-md);
+            margin-bottom: 14px;
         }
         .mode-btn-v {
-            padding: 12px 16px;
+            flex: 1;
+            padding: 7px 12px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-muted);
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid transparent;
+            text-align: center;
+            border: none;
+            background: transparent;
         }
-        .mode-btn-v:hover { background: #fff; }
+        .mode-btn-v:hover { color: var(--text-main); }
         .mode-btn-v.active {
             background: #fff;
             color: var(--primary);
-            border-color: var(--border-color);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
-        .mode-btn-v i { font-size: 1.2rem; }
 
         /* Stats Box */
         .stats-summary-box {
             background: #f8fafc;
             border-radius: var(--radius-md);
-            padding: 20px;
+            padding: 14px;
             border: 1px solid var(--border-color);
         }
         .stat-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
             border-bottom: 1px solid #e2e8f0;
         }
         .stat-item:last-child { margin-bottom: 0; padding-bottom: 0; border: none; }
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); }
-        .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
-
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); }
+        .stat-value { font-size: 1rem; font-weight: 700; color: var(--text-main); }
 
         /* --- Section 3: Financials --- */
         .financials-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 300px; /* Split inputs, calcs, and total */
-            gap: 24px;
+            grid-template-columns: 1fr 1fr 200px;
+            gap: 16px;
         }
 
         .total-value-display {
             background: #0f172a;
             color: #fff;
-            padding: 24px;
-            border-radius: var(--radius-lg);
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            min-height: 120px;
+            max-height: 180px;
+            overflow-y: auto;
         }
 
         .btn-save-floating {
@@ -262,16 +260,15 @@
             .img-uploader { aspect-ratio: 16/9; }
             .specs-grid { grid-template-columns: 1fr; }
             .financials-grid { grid-template-columns: 1fr; }
-            .mode-switcher-vertical { flex-direction: row; overflow-x: auto; }
-            .btn-save-floating { width: calc(100% - 48px); justify-content: center; text-align: center; }
+            .btn-save-floating { width: calc(100% - 32px); justify-content: center; text-align: center; }
         }
     </style>
 
     <div class="page-container">
         
         {{-- Page Title --}}
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
                 <a href="{{ route('product') }}" class="btn btn-white border shadow-sm rounded-circle p-0" style="width: 40px; height: 40px; display: grid; place-items: center;">
                     <i class="las la-arrow-left"></i>
                 </a>
@@ -323,7 +320,7 @@
 
                         {{-- Details (Right) --}}
                         <div class="details-section">
-                            <div class="row g-3">
+                            <div class="row g-2">
                                 {{-- Row 1: Name & Barcode --}}
                                 <div class="col-md-8">
                                     <label class="form-label-pro">Product Name <span class="text-danger">*</span></label>
@@ -332,8 +329,8 @@
                                 <div class="col-md-4">
                                     <label class="form-label-pro">Barcode Auto-Gen</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control-pro" id="barcodeInput" name="barcode_path" value="{{ $product->barcode_path }}">
-                                        <button type="button" class="btn btn-light border" id="generateBarcodeBtn"><i class="las la-magic"></i></button>
+                                        <input type="text" class="form-control form-control-pro" id="barcodeInput" name="barcode_path" value="{{ $product->barcode_path }}">
+                                        <button type="button" class="btn btn-light border px-2" id="generateBarcodeBtn"><i class="las la-magic fs-5"></i></button>
                                     </div>
                                 </div>
 
@@ -364,45 +361,18 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label-pro">Brand</label>
-                                    <select class="form-select form-control-pro form-select-pro" name="brand_id" required>
+                                    <select class="form-select form-control-pro form-select-pro" id="brand-dropdown" name="brand_id" required>
                                         <option value="">Select...</option>
                                         @foreach ($brands as $brand)
                                             <option value="{{ $brand->id }}" {{ $product->brand_id == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label-pro">Model / Series</label>
-                                    <input type="text" class="form-control-pro" name="model" value="{{ $product->model }}" placeholder="Optional">
-                                </div>
-
-                                 {{-- Row 3: Colors --}}
-                                 <div class="col-md-12">
-                                     <label class="form-label-pro">Colors</label>
-                                     <select class="form-control-pro" name="color[]" id="color-select" multiple="multiple" style="width: 100%">
-                                         @php
-                                             $colors = is_string($product->color) ? json_decode($product->color, true) : $product->color ?? [];
-                                             if (!is_array($colors)) {
-                                                 $colors = [];
-                                             }
-                                         @endphp
-                                         <option value="Black" {{ in_array('Black', $colors) ? 'selected' : '' }}>Black</option>
-                                         <option value="White" {{ in_array('White', $colors) ? 'selected' : '' }}>White</option>
-                                         <option value="Red" {{ in_array('Red', $colors) ? 'selected' : '' }}>Red</option>
-                                         <option value="Blue" {{ in_array('Blue', $colors) ? 'selected' : '' }}>Blue</option>
-                                         <option value="Beige" {{ in_array('Beige', $colors) ? 'selected' : '' }}>Beige</option>
-                                         @foreach ($colors as $c)
-                                             @if (!in_array($c, ['Black', 'White', 'Red', 'Blue', 'Beige']))
-                                                 <option value="{{ $c }}" selected>{{ $c }}</option>
-                                             @endif
-                                         @endforeach
-                                     </select>
-                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
 
             {{-- SECTION 2: MEASUREMENTS & STOCK --}}
             <div class="section-card">
@@ -412,102 +382,48 @@
                 <div class="card-body-pro">
                     <div class="specs-grid">
                         
-                        {{-- Col 1: Mode Switcher (Left Nav Style) --}}
-                        <div class="mode-switcher-vertical">
-                            <input type="radio" class="d-none" name="size_mode" id="mode_size" value="by_size" {{ $product->size_mode == 'by_size' ? 'checked' : '' }} {{ !$product->size_mode ? 'checked' : '' }}>
-                            <label class="mode-btn-v active" for="mode_size" onclick="selectMode(this)">
-                                <i class="las la-compress-arrows-alt"></i>
-                                <div>
-                                    <div class="fw-bold">By Size</div>
-                                    <small class="text-muted d-block" style="font-size: 0.7em;">Tiles, Flooring</small>
-                                </div>
-                            </label>
-
-                            <input type="radio" class="d-none" name="size_mode" id="mode_carton" value="by_cartons" {{ $product->size_mode == 'by_cartons' ? 'checked' : '' }}>
-                            <label class="mode-btn-v" for="mode_carton" onclick="selectMode(this)">
-                                <i class="las la-box"></i>
-                                <div>
-                                    <div class="fw-bold">By Carton</div>
-                                    <small class="text-muted d-block" style="font-size: 0.7em;">Boxed Items</small>
-                                </div>
-                            </label>
-
-                            <input type="radio" class="d-none" name="size_mode" id="mode_piece" value="by_pieces" {{ $product->size_mode == 'by_pieces' ? 'checked' : '' }}>
-                            <label class="mode-btn-v" for="mode_piece" onclick="selectMode(this)">
-                                <i class="las la-puzzle-piece"></i>
-                                <div>
-                                    <div class="fw-bold">By Piece</div>
-                                    <small class="text-muted d-block" style="font-size: 0.7em;">Single Units</small>
-                                </div>
-                            </label>
-                        </div>
-
-                        {{-- Col 2: Inputs (Dynamic) --}}
-                        <div class="specs-inputs">
-                            
-                            {{-- By Size Inputs --}}
-                            <div class="group-by-size">
-                                <div class="row g-3 mb-4">
-                                    <div class="col-6" id="div_height">
-                                        <label class="form-label-pro">Height (cm)</label>
-                                        <input type="number" class="form-control-pro" name="height" id="height" step="0.01" placeholder="0" value="{{ $product->height }}">
-                                    </div>
-                                    <div class="col-6" id="div_width">
-                                        <label class="form-label-pro">Width (cm)</label>
-                                        <input type="number" class="form-control-pro" name="width" id="width" step="0.01" placeholder="0" value="{{ $product->width }}">
-                                    </div>
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <label class="form-label-pro">Pcs / Box</label>
-                                        <input type="number" class="form-control-pro bg-light" name="pieces_per_box" id="pieces_per_box" placeholder="0" value="{{ $product->pieces_per_box }}">
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label-pro text-primary">In-Stock Boxes</label>
-                                        <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="boxes_quantity" id="boxes_quantity" placeholder="0" value="{{ $product->boxes_quantity }}">
-                                    </div>
-                                </div>
+                        {{-- Left: Mode Pills + Inputs --}}
+                        <div>
+                            <div class="mode-pills">
+                                <input type="radio" class="d-none" name="size_mode" id="mode_carton" value="by_cartons" {{ $product->size_mode == 'by_cartons' ? 'checked' : '' }}>
+                                <label class="mode-btn-v {{ $product->size_mode == 'by_cartons' ? 'active' : '' }}" for="mode_carton" onclick="selectMode(this)">By Carton</label>
+                                <input type="radio" class="d-none" name="size_mode" id="mode_piece" value="by_pieces" {{ $product->size_mode == 'by_pieces' || !$product->size_mode ? 'checked' : '' }}>
+                                <label class="mode-btn-v {{ $product->size_mode == 'by_pieces' || !$product->size_mode ? 'active' : '' }}" for="mode_piece" onclick="selectMode(this)">By Piece</label>
                             </div>
 
-                            {{-- Extra / Loose --}}
-                            <div class="group-loose d-none mt-3">
-                                <label class="form-label-pro text-warning">Loose Pieces (Extra)</label>
-                                <input type="number" class="form-control-pro border-warning" name="loose_pieces" id="loose_pieces" value="{{ $product->loose_pieces }}">
-                            </div>
+                            <div class="specs-inputs">
+                                {{-- Piece Only (default) --}}
+                                <div class="group-piece-only {{ $product->size_mode == 'by_pieces' || !$product->size_mode ? '' : 'd-none' }}">
+                                    <label class="form-label-pro">Total Quantity</label>
+                                    <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="piece_quantity" id="piece_quantity" placeholder="0" value="{{ $product->piece_quantity }}">
+                                </div>
 
-                            {{-- Piece Only --}}
-                            <div class="group-piece-only d-none mt-3">
-                                <label class="form-label-pro text-primary">Total Quantity (Heading)</label>
-                                <input type="number" class="form-control-pro border-primary text-primary fw-bold fs-5" name="piece_quantity" id="piece_quantity" placeholder="0" value="{{ $product->piece_quantity }}">
+                                {{-- By Carton Inputs --}}
+                                <div class="group-by-carton {{ $product->size_mode == 'by_cartons' ? '' : 'd-none' }}">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6">
+                                            <label class="form-label-pro">Pcs / Box</label>
+                                            <input type="number" class="form-control-pro bg-light" name="pieces_per_box" id="pieces_per_box" placeholder="0" value="{{ $product->pieces_per_box }}">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label-pro">In-Stock Boxes</label>
+                                            <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="boxes_quantity" id="boxes_quantity" placeholder="0" value="{{ $product->boxes_quantity }}">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label-pro text-warning">Loose Pieces</label>
+                                        <input type="number" class="form-control-pro border-warning" name="loose_pieces" id="loose_pieces" value="{{ $product->loose_pieces }}">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- Col 3: Calculated Stats --}}
+                        {{-- Right: Compact Stats --}}
                         <div class="stats-summary-box">
-                            <h6 class="text-uppercase text-muted fw-bold mb-3 small">Stock Summary</h6>
-                            
+                            <h6 class="text-uppercase text-muted fw-bold mb-2 small">Stock Summary</h6>
                             <div class="stat-item">
-                                <span class="stat-label" id="stock_unit_label">Total Boxes</span>
+                                <span class="stat-label" id="stock_unit_label">Total Pieces</span>
                                 <span class="stat-value" id="total_stock_display">0</span>
-                            </div>
-
-                            <div class="stat-item" id="total_m2_card">
-                                <span class="stat-label">Total Area</span>
-                                <div>
-                                    <span class="stat-value text-info" id="total_m2_display">0.00</span>
-                                    <small class="text-muted ms-1">m²</small>
-                                </div>
-                            </div>
-
-                            <div id="m2_display_container" class="mt-3 pt-3 border-top">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">m² per Piece:</small>
-                                    <small class="fw-bold" id="m2_per_piece">0</small>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <small class="text-muted">m² per Box:</small>
-                                    <small class="fw-bold" id="m2_per_box">0</small>
-                                </div>
                             </div>
                         </div>
 
@@ -523,90 +439,63 @@
                 <div class="card-body-pro">
                     <div class="financials-grid">
 
-                        {{-- Col 1: Inputs --}}
+                        {{-- Col 1: Pricing Inputs (Sale + Purchase side by side) --}}
                         <div class="pricing-inputs">
-                            <div class="group-price-m2">
-                                <h6 class="form-label-pro text-primary mb-3">Rate per SQM (M²)</h6>
-                                <div class="mb-3">
-                                    <label class="form-label-pro text-success">Sale Price</label>
-                                    <input type="number" class="form-control-pro fw-bold text-success" name="price_per_m2" id="price_per_m2" step="0.01" value="{{ $product->price_per_m2 }}">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label-pro text-secondary">Purchase Price</label>
-                                    <input type="number" class="form-control-pro text-muted" name="purchase_price_per_m2" id="purchase_price_per_m2" step="0.01" value="{{ $product->purchase_price_per_m2 }}">
-                                </div>
-                            </div>
-
-                            <div class="group-price-unit d-none">
-                                <h6 class="form-label-pro text-primary mb-3">Rate per Unit</h6>
-                                <div class="mb-3">
-                                    <label class="form-label-pro text-success">Sale Price <span class="unit-label text-muted fw-normal">(pc)</span></label>
-                                    <input type="number" class="form-control-pro fw-bold text-success" name="sale_price_per_box" id="sale_price_per_box" step="0.01" value="{{ $product->sale_price_per_piece }}">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label-pro text-secondary">Purchase Price <span class="unit-label text-muted fw-normal">(pc)</span></label>
-                                    <input type="number" class="form-control-pro text-muted" name="purchase_price_per_piece" id="purchase_price_per_piece" step="0.01" value="{{ $product->purchase_price_per_piece }}">
+                            <div class="group-price-unit">
+                                <h6 class="form-label-pro text-primary mb-2">Rate per Unit</h6>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label-pro text-success">Sale <span class="unit-label text-muted fw-normal">(pc)</span></label>
+                                        <input type="number" class="form-control-pro fw-bold text-success" name="sale_price_per_box" id="sale_price_per_box" step="0.01" placeholder="0" value="{{ $product->sale_price_per_piece }}">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label-pro text-danger">Cost / Purchase <span class="unit-label text-muted fw-normal">(pc)</span></label>
+                                        <input type="number" class="form-control-pro text-muted" name="purchase_price_per_piece" id="purchase_price_per_piece" step="0.01" placeholder="0" value="{{ $product->purchase_price_per_piece }}">
+                                    </div>
                                 </div>
                             </div>
 
-                            {{-- Shared Discounts --}}
-                            <div class="mt-4 pt-3 border-top">
-                                <h6 class="form-label-pro text-primary mb-3">Default Discounts</h6>
+                            <div class="mt-3 pt-2 border-top">
+                                <h6 class="form-label-pro text-primary mb-2">Discounts</h6>
                                 <div class="row g-2">
                                     <div class="col-6">
-                                        <label class="form-label-pro">Sale Disc (%)</label>
+                                        <label class="form-label-pro">Sale Disc %</label>
                                         <input type="number" class="form-control-pro" name="sale_discount_percent" step="0.01" value="{{ $product->sale_discount_percent ?? 0 }}">
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label-pro">Purch Disc (%)</label>
+                                        <label class="form-label-pro">Purch Disc %</label>
                                         <input type="number" class="form-control-pro" name="purchase_discount_percent" step="0.01" value="{{ $product->purchase_discount_percent ?? 0 }}">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Col 2: Info (Calculated) --}}
+                        {{-- Col 2: Calculated Unit Prices (compact) --}}
                         <div class="calculated-info" id="calc_unit_prices">
-                            <h6 class="form-label-pro text-primary mb-3">Calculated Unit Prices</h6>
-                            
+                            <h6 class="form-label-pro text-primary mb-2">Unit Prices</h6>
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <div class="p-2 border rounded bg-light text-center">
-                                        <small class="d-block text-muted">Sale / Pc</small>
-                                        <strong class="text-success" id="calc_sale_piece">0.00</strong>
+                                    <div class="p-1 border rounded bg-light text-center">
+                                        <small class="d-block text-muted" style="font-size:0.65rem">Sale / Pc</small>
+                                        <strong class="text-success small" id="calc_sale_piece">0.00</strong>
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <div class="p-2 border rounded bg-light text-center">
-                                        <small class="d-block text-muted">Sale / Box</small>
-                                        <strong class="text-success" id="calc_sale_box">0.00</strong>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="p-2 border rounded bg-light text-center">
-                                        <small class="d-block text-muted">Buy / Pc</small>
-                                        <span class="text-dark" id="calc_purch_piece">0.00</span>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="p-2 border rounded bg-light text-center">
-                                        <small class="d-block text-muted">Buy / Box</small>
-                                        <span class="text-dark" id="calc_purch_box">0.00</span>
+                                    <div class="p-1 border rounded bg-light text-center">
+                                        <small class="d-block text-muted" style="font-size:0.65rem">Cost / Pc</small>
+                                        <span class="text-dark small" id="calc_purch_piece">0.00</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Spacer Col (Empty) --}}
-                        <div class="d-none d-lg-block"></div>
-
-                        {{-- Col 3: Grand Total --}}
+                        {{-- Col 3: Compact Estimated Stock Value with scroll --}}
                         <div class="total-section">
                             <div class="total-value-display">
-                                <small class="text-uppercase opacity-75 letter-spacing-1 mb-1">Estimated Stock Value</small>
-                                <div>
-                                    <span class="fs-5 opacity-75">PKR</span>
-                                    <span class="display-5 fw-bold" id="sale_total_display">0.00</span>
+                                <small class="text-uppercase opacity-75" style="font-size:0.6rem;letter-spacing:1px">Stock Value</small>
+                                <div class="mt-1">
+                                    <small class="opacity-75" style="font-size:0.7rem">PKR</small>
+                                    <div class="fw-bold" style="font-size:1.1rem;line-height:1.2" id="sale_total_display">0.00</div>
                                 </div>
                             </div>
                         </div>
@@ -686,107 +575,38 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // --- UI Elements ---
             const form = document.getElementById('productForm');
             const modeRadios = document.querySelectorAll('input[name="size_mode"]');
 
-            // Containers
-            const grpBySize = document.querySelector('.group-by-size');
-            const grpLoose = document.querySelector('.group-loose');
+            const grpByCarton = document.querySelector('.group-by-carton');
             const grpPieceOnly = document.querySelector('.group-piece-only');
-            const grpPriceM2 = document.querySelector('.group-price-m2');
-            const grpPriceUnit = document.querySelector('.group-price-unit');
-            const grpCalcUnit = document.getElementById('calc_unit_prices');
-
-            // Elements to toggle in By Carton Mode
-            const divHeight = document.getElementById('div_height');
-            const divWidth = document.getElementById('div_width');
-            const m2Display = document.getElementById('m2_display_container');
-            const totalM2Card = document.getElementById('total_m2_card');
-
-            // Labels
-            const unitLabels = document.querySelectorAll('.unit-label');
             const stockLabel = document.getElementById('stock_unit_label');
 
-            // --- Logic Update Mode ---
             function updateMode() {
                 const modeEl = document.querySelector('input[name="size_mode"]:checked');
                 if(!modeEl) return;
                 const mode = modeEl.value;
 
-                // Sync UI Button
                 document.querySelectorAll('.mode-btn-v').forEach(btn => btn.classList.remove('active'));
                 const labelFor = document.querySelector(`label[for="${modeEl.id}"]`);
                 if(labelFor) labelFor.classList.add('active');
 
-                // Hide ALL
-                if (grpBySize) grpBySize.classList.add('d-none');
-                if (grpLoose) grpLoose.classList.add('d-none');
+                if (grpByCarton) grpByCarton.classList.add('d-none');
                 if (grpPieceOnly) grpPieceOnly.classList.add('d-none');
-                if (grpPriceM2) grpPriceM2.classList.add('d-none');
-                if (grpPriceUnit) grpPriceUnit.classList.add('d-none');
-                if (grpCalcUnit) grpCalcUnit.classList.add('d-none');
 
-                // Reset internal visibility
-                if (divHeight) divHeight.classList.remove('d-none');
-                if (divWidth) divWidth.classList.remove('d-none');
-                if (m2Display) m2Display.classList.remove('d-none');
-                if (totalM2Card) totalM2Card.classList.remove('d-none'); 
-
-                if (mode === 'by_size') {
-                    if (grpBySize) grpBySize.classList.remove('d-none');
-                    if (grpPriceM2) grpPriceM2.classList.remove('d-none');
-                    if (grpCalcUnit) grpCalcUnit.classList.remove('d-none');
-
-                    if (stockLabel) stockLabel.innerText = "Total Boxes";
-                    setRequired(['height', 'width', 'pieces_per_box', 'boxes_quantity', 'price_per_m2', 'purchase_price_per_m2'], true);
-                    setRequired(['piece_quantity', 'sale_price_per_box', 'purchase_price_per_piece'], false);
-
-                } else if (mode === 'by_cartons') {
-                    if (grpBySize) grpBySize.classList.remove('d-none');
-                    if (divHeight) divHeight.classList.add('d-none');
-                    if (divWidth) divWidth.classList.add('d-none');
-                    if (m2Display) m2Display.classList.add('d-none');
-                    if (totalM2Card) totalM2Card.classList.add('d-none');
-
-                    if (grpLoose) grpLoose.classList.remove('d-none');
-                    if (grpPriceUnit) grpPriceUnit.classList.remove('d-none');
-
-                    unitLabels.forEach(l => l.innerText = "(pc)");
+                if (mode === 'by_cartons') {
+                    if (grpByCarton) grpByCarton.classList.remove('d-none');
                     if (stockLabel) stockLabel.innerText = "Total Pieces";
-
-                    setRequired(['pieces_per_box', 'boxes_quantity', 'sale_price_per_box', 'purchase_price_per_piece'], true);
-                    setRequired(['height', 'width', 'piece_quantity', 'price_per_m2', 'purchase_price_per_m2'], false);
-
-                } else if (mode === 'by_pieces') {
+                    setRequired(['pieces_per_box', 'boxes_quantity', 'loose_pieces', 'sale_price_per_box', 'purchase_price_per_piece'], true);
+                    setRequired(['piece_quantity'], false);
+                } else {
                     if (grpPieceOnly) grpPieceOnly.classList.remove('d-none');
-                    if (grpPriceUnit) grpPriceUnit.classList.remove('d-none');
-                    if (totalM2Card) totalM2Card.classList.add('d-none');
-
-                    unitLabels.forEach(l => l.innerText = "(pc)");
                     if (stockLabel) stockLabel.innerText = "Total Pieces";
-
                     setRequired(['piece_quantity', 'sale_price_per_box', 'purchase_price_per_piece'], true);
-                    setRequired(['height', 'width', 'pieces_per_box', 'boxes_quantity', 'price_per_m2', 'purchase_price_per_m2'], false);
+                    setRequired(['pieces_per_box', 'boxes_quantity', 'loose_pieces'], false);
                 }
 
                 calculate();
-            }
-
-            function resetInputs() {
-                const idsOrNames = ['height', 'width', 'pieces_per_box', 'boxes_quantity', 'loose_pieces', 'piece_quantity', 'price_per_m2', 'purchase_price_per_m2', 'sale_price_per_box', 'purchase_price_per_piece'];
-                idsOrNames.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
-                calculate();
-            }
-
-            function setRequired(ids, isReq) {
-                ids.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) isReq ? el.setAttribute('required', 'required') : el.removeAttribute('required');
-                });
             }
 
             function calculate() {
@@ -796,42 +616,33 @@
 
                 const v = (id) => parseFloat(document.getElementById(id)?.value) || 0;
                 let stock = 0;
-                let saleVal = 0;
+                let costVal = 0;
+                let salePc = 0;
+                let costPc = 0;
 
-                if (mode === 'by_size') {
-                    const h = v('height');
-                    const w = v('width');
-                    const pcs = v('pieces_per_box');
-                    const boxes = v('boxes_quantity');
-                    const pSaleM2 = v('price_per_m2');
-                    
-                    stock = boxes;
-
-                    const m2Piece = (h * w) / 10000;
-                    const m2Box = m2Piece * pcs;
-                    const totalM2 = m2Piece * pcs * boxes;
-                    saleVal = totalM2 * pSaleM2;
-
-                    setText('m2_per_piece', m2Piece.toFixed(4));
-                    setText('m2_per_box', m2Box.toFixed(4));
-                    setText('total_m2_display', totalM2.toFixed(3));
-                    
-                    setText('calc_sale_piece', (m2Piece * pSaleM2).toFixed(2));
-                    setText('calc_sale_box', (m2Box * pSaleM2).toFixed(2));
-                    setText('calc_purch_piece', (m2Piece * v('purchase_price_per_m2')).toFixed(2));
-                    setText('calc_purch_box', (m2Box * v('purchase_price_per_m2')).toFixed(2));
-
-                } else if (mode === 'by_cartons') {
+                if (mode === 'by_cartons') {
                     stock = (v('pieces_per_box') * v('boxes_quantity')) + v('loose_pieces');
-                    saleVal = stock * v('sale_price_per_box');
-
-                } else if (mode === 'by_pieces') {
+                    costVal = stock * v('purchase_price_per_piece');
+                    salePc = v('sale_price_per_box');
+                    costPc = v('purchase_price_per_piece');
+                } else {
                     stock = v('piece_quantity');
-                    saleVal = stock * v('sale_price_per_box');
+                    costVal = stock * v('purchase_price_per_piece');
+                    salePc = v('sale_price_per_box');
+                    costPc = v('purchase_price_per_piece');
                 }
 
                 setText('total_stock_display', stock);
-                setText('sale_total_display', saleVal.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+                setText('sale_total_display', costVal.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+                setText('calc_sale_piece', salePc.toFixed(2));
+                setText('calc_purch_piece', costPc.toFixed(2));
+            }
+
+            function setRequired(ids, isReq) {
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) isReq ? el.setAttribute('required', 'required') : el.removeAttribute('required');
+                });
             }
 
             function setText(id, val) {
@@ -839,14 +650,11 @@
                 if (el) el.innerText = val;
             }
 
-            // Events
             modeRadios.forEach(r => r.addEventListener('change', function() {
-                // ✅ Do NOT resetInputs() on edit page - user's saved values must stay!
                 updateMode();
             }));
             form.querySelectorAll('input').forEach(i => i.addEventListener('input', calculate));
 
-            // Initial Call to set state based on loaded values
             updateMode();
 
             // Image Handler
@@ -871,8 +679,6 @@
             clr.addEventListener('click', (e) => {
                 e.stopPropagation();
                 imgInput.value = '';
-                
-                // For Edit: Revert to original if exists
                 @if($product->image)
                     preview.src = "{{ asset('uploads/products/' . $product->image) }}";
                     preview.classList.remove('d-none');
@@ -884,7 +690,7 @@
                 @endif
             });
 
-            // AJAX Submission / Standard Submission
+            // AJAX Submission
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const btn = document.querySelector('.btn-save-floating');
@@ -894,7 +700,7 @@
 
                 const formData = new FormData(form);
                 fetch(form.action, {
-                    method: 'POST', // Method POST because we use _method=PUT in formData
+                    method: 'POST',
                     headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'},
                     body: formData
                 })
@@ -904,7 +710,7 @@
                          Swal.fire({
                             icon: 'success', title: 'Updated!',
                             text: 'Product updated successfully', timer: 1500, showConfirmButton: false
-                        }).then(() => window.location.href = "{{ route('product') }}"); // Redirect to list on edit success
+                        }).then(() => window.location.href = "{{ route('product') }}");
                     } else {
                         const msg = body.errors ? Object.values(body.errors).flat().join('<br>') : (body.message || 'Error');
                         Swal.fire({icon: 'error', title: 'Error', html: msg});
@@ -922,18 +728,25 @@
             const barBtn = document.getElementById('generateBarcodeBtn');
             const barcodeUrl = '{{ route('generate-barcode-image') }}';
             
-            barBtn.addEventListener('click', () => fetch(barcodeUrl).then(r => r.json()).then(d => barIn.value = d.barcode_number));
+            const ajaxHeaders = { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } };
+            if (!barIn.value) fetch(barcodeUrl, ajaxHeaders).then(r => r.json()).then(d => barIn.value = d.barcode_number);
+            barBtn.addEventListener('click', () => fetch(barcodeUrl, ajaxHeaders).then(r => r.json()).then(d => barIn.value = d.barcode_number));
 
-            // Select2
-             $('#color-select').select2({ placeholder: "Select Colors", tags: true });
-             $('#category-dropdown').on('change', function() {
+            // Select2 for category/subcategory/brand
+            $('#category-dropdown').select2({ placeholder: "Select Category", allowClear: true, width: '100%' });
+            $('#subcategory-dropdown').select2({ placeholder: "Select Subcategory", allowClear: true, width: '100%' });
+            $('#brand-dropdown').select2({ placeholder: "Select Brand", allowClear: true, width: '100%' });
+
+            $('#category-dropdown').on('change', function() {
                 var cid = $(this).val();
                 if (cid) {
                     $.get('/get-subcategories/' + cid, function(d) {
-                        $('#subcategory-dropdown').empty().append('<option value="">Select...</option>');
+                        var sub = $('#subcategory-dropdown');
+                        sub.empty().append('<option value="">Select...</option>');
                         $.each(d, function(_, v) {
-                            $('#subcategory-dropdown').append('<option value="' + v.id + '">' + v.name + '</option>');
+                            sub.append('<option value="' + v.id + '">' + v.name + '</option>');
                         });
+                        sub.val('').trigger('change');
                     });
                 }
             });

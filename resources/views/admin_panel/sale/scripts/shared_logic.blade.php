@@ -465,7 +465,13 @@
                 },
                 error: function(xhr) {
                     $('#btnSave, #btnHeaderPosted, #btnPosted').prop('disabled', false);
-                    Swal.fire('Error', 'Save error', 'error');
+                    var msg = 'Save error';
+                    if (xhr.responseJSON) {
+                        msg = xhr.responseJSON.message || xhr.responseJSON.msg || JSON.stringify(xhr.responseJSON.errors);
+                    } else if (xhr.statusText) {
+                        msg = xhr.statusText;
+                    }
+                    Swal.fire('Error (' + xhr.status + ')', msg, 'error');
                     reject(xhr);
                 }
             });
@@ -517,7 +523,7 @@
         $('#salesTableBody tr').each(function() {
             const $r = $(this);
             const prod = $r.find('.product').val();
-            const wh = $r.find('.warehouse').val();
+            const wh = $r.find('.warehouse-id-hidden').val();
             const qty = parseFloat($r.find('.sales-qty').val() || '0') || 0;
             if ((qty <= 0) || ((!prod || prod === '') && (!wh || wh === ''))) {
                 if ($('#salesTableBody tr').length > 1) {

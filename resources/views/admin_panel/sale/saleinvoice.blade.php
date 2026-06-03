@@ -343,9 +343,13 @@
                         $totalM2Line = $m2PerPiece * $totalPieces;
                         $sizeMode = $item['size_mode'] ?? 'by_size';
                     @endphp
-                    <tr>
+                    @php $isFree = str_contains($item['item_name'] ?? '', '(Free Bottle)'); @endphp
+                    <tr @if($isFree) style="background: #f0fff4;" @endif>
                         <td class="text-start">
                             <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px;">
+                                @if($isFree)
+                                    <span class="badge bg-success me-1" style="font-size: 9px;">FREE</span>
+                                @endif
                                 {{ $item['item_name'] }}
                                 @if (!empty($item['item_code']))
                                     <span class="text-muted fw-normal ms-1"

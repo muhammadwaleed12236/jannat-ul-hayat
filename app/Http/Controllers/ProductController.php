@@ -19,7 +19,8 @@ class ProductController extends Controller
 {
     public function getPrice(Request $request)
     {
-        $product = Product::find($request->product_id);
+        $productId = (int) explode('|', $request->product_id)[0];
+        $product = Product::find($productId);
 
         if (! $product) {
             return response()->json(['retail_price' => 0]);
@@ -367,7 +368,7 @@ class ProductController extends Controller
         }
 
         // 2. Fallback to Random / JSON for Auto-Gen button
-        $barcodeNumber = $request->filled('code') ? $request->code : rand(100000000000, 999999999999);
+        $barcodeNumber = $request->filled('code') ? $request->code : rand(100000, 999999);
         $barcodePNG = (new DNS1D)->getBarcodePNG($barcodeNumber, 'C128', 2, 40);
         $barcodeImage = 'data:image/png;base64,'.$barcodePNG;
 

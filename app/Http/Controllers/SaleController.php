@@ -919,7 +919,7 @@ class SaleController extends Controller
             'product_id' => 'required|array|min:1',
             'product_id.*' => 'required|string',
             'qty' => 'required|array|min:1',
-            'warehouse_id' => 'required|array',
+            'warehouse_id' => 'nullable',
         ];
 
         if ($request->partyType !== 'Walking Customer') {
@@ -928,13 +928,9 @@ class SaleController extends Controller
 
         $request->validate($rules);
 
-        // Prevent duplicate products
-        if (count($request->product_id) !== count(array_unique($request->product_id))) {
-            throw \Illuminate\Validation\ValidationException::withMessages(['product_id' => 'Duplicate products are not allowed in a single sale. Please merge quantities.']);
-        }
-
         $status = $request->action === 'post' ? 'posted' : 'booked';
 
+        try {
         // Concurrency Safe Transaction
         return DB::transaction(function () use ($request, $sale, $status) {
 
@@ -942,9 +938,23 @@ class SaleController extends Controller
             $isNew = ! $sale->exists;
 
             if ($request->partyType === 'Walking Customer') {
-                // Find or use default walk-in customer (ID 3)
-                $walkinCustomer = Customer::where('customer_id', 'CUST-0000')->first();
-                $sale->customer_id = $walkinCustomer->id ?? 3;
+                // Find or use default walk-in customer
+                $walkinCustomer = Customer::where('customer_id', 'CUST-0000')
+                    ->orWhere('customer_type', 'Walking Customer')
+                    ->first();
+                
+                if (!$walkinCustomer) {
+                    $walkinCustomer = Customer::create([
+                        'customer_id' => 'CUST-0000',
+                        'customer_name' => 'Walk-in Customer',
+                        'customer_type' => 'Walking Customer',
+                        'opening_balance' => 0,
+                        'previous_balance' => 0,
+                        'balance_range' => 0
+                    ]);
+                }
+                
+                $sale->customer_id = $walkinCustomer->id;
                 $sale->walkin_name = $request->walkin_name ?? 'Walk-in';
             } else {
                 $sale->customer_id = $request->customer;
@@ -1011,7 +1021,7 @@ class SaleController extends Controller
             // Looking at invoice blade: $item['qty'] is boxes.
             // Let's assume input 'qty' is BOXES.
 
-            $warehouses = $request->warehouse_id;
+            $warehouses = (array) $request->warehouse_id;
             $locations = $request->location ?? [];
             $discounts = $request->item_disc ?? [];
 
@@ -1224,6 +1234,15 @@ class SaleController extends Controller
 
             return redirect()->route('sale.index')->with('success', 'Sale saved as '.$status);
         });
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            \Log::error('processSale error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['ok' => false, 'msg' => $e->getMessage()], 500);
+            }
+            throw $e;
+        }
     }
 
     private function handleStockImpact(Sale $sale, $type = 'out')

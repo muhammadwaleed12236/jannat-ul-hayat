@@ -237,7 +237,8 @@
     </div>
     </div>
 @endsection
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@section('js')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     function submitSale(action) {
@@ -248,12 +249,13 @@
             return;
         }
 
-        const formData = {
+            var warehouseVal = $('input[name="warehouse_id"]').val() || 1;
+        var formData = {
             action: action,
             _token: '{{ csrf_token() }}',
             customer: $('select[name="customer"]').val(),
             reference: $('input[name="reference"]').val(),
-            warehouse_id: $('input[name="warehouse_id"]').val(),
+            warehouse_id: [],
 
             product_id: [],
             item_code: [],
@@ -275,9 +277,8 @@
             change: $('#change').val()
         };
 
-        // Loop rows
         $('#purchaseItems tr').each(function() {
-            const pid = $(this).find('.product_id').val();
+            var pid = $(this).find('.product_id').val();
             if (pid) {
                 formData.product_id.push(pid);
                 formData.item_code.push($(this).find('.item_code input').val());
@@ -288,6 +289,7 @@
                 formData.qty.push($(this).find('.quantity').val());
                 formData.total.push($(this).find('.row-total').val());
                 formData.color.push($(this).find('.select2-color').val());
+                formData.warehouse_id.push(warehouseVal);
             }
         });
 
@@ -518,3 +520,4 @@
         });
     });
 </script>
+@endsection
