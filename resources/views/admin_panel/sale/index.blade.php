@@ -215,18 +215,18 @@
                                     <td>{{ optional($sale->customer_relation)->customer_name ?? 'N/A' }}</td>
                                     <td><small class="text-muted">{{ $sale->reference }}</small></td>
                                     <td><span class="text-truncate d-inline-block" style="max-width:150px" title="{{ $pNames }}">{{ $pNames }}</span></td>
-                                    <td class="fw-semibold">{{ $sale->items->sum('quantity') }}</td>
-                                    <td class="fw-semibold">{{ number_format($sale->gross_total, 0) }}</td>
-                                    <td>{{ number_format($sale->discount_total, 0) }}</td>
-                                    <td class="fw-bold">{{ number_format($sale->net_total, 0) }}</td>
-                                    <td><small>{{ \Carbon\Carbon::parse($sale->sale_date)->format('d-m-Y') }}</small></td>
+                                    <td class="fw-semibold">{{ $sale->items->sum('total_pieces') }}</td>
+                                    <td class="fw-semibold">{{ number_format($sale->total_bill_amount, 0) }}</td>
+                                    <td>{{ number_format($sale->total_extradiscount, 0) }}</td>
+                                    <td class="fw-bold">{{ number_format($sale->total_net, 0) }}</td>
+                                    <td><small>{{ \Carbon\Carbon::parse($sale->created_at)->format('Y-m-d') }}</small></td>
                                     <td><span class="status-badge {{ $statusClass }} text-white">{{ $statusText }}</span></td>
                                     <td>
                                         <div class="dropdown dropdown-more">
-                                            <button class="action-btn dropdown-toggle" data-bs-toggle="dropdown" style="border:none;background:transparent;padding:2px 8px;font-size:0.9rem">
+                                            <button class="action-btn dropdown-toggle" data-toggle="dropdown" style="border:none;background:transparent;padding:2px 8px;font-size:0.9rem">
                                                 <i class="las la-ellipsis-v"></i>
                                             </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
+                                            <ul class="dropdown-menu dropdown-menu-right">
                                                 <li><a class="dropdown-item" href="{{ route('sales.invoice', $sale->id) }}" target="_blank"><i class="las la-file-invoice text-primary"></i> Invoice</a></li>
                                                 <li><a class="dropdown-item" href="{{ route('sales.dc', $sale->id) }}" target="_blank"><i class="las la-truck text-info"></i> DC</a></li>
                                                 <li><a class="dropdown-item" href="{{ route('sales.receipt', $sale->id) }}" target="_blank"><i class="las la-receipt text-success"></i> Receipt</a></li>
@@ -250,7 +250,9 @@
             @endif
         </div>
     </div>
+@endsection
 
+@section('js')
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         function resetFilters() {

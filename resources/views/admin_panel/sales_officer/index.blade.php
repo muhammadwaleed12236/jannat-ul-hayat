@@ -7,12 +7,12 @@
                     <div class="col-lg-12">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h3>Sales Officers</h3>
-                            @can('sales.officers.create')
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"
-                                    id="reset">
-                                    Create
-                                </button>
-                            @endcan
+                                @can('sales.officers.create')
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal"
+                                        id="reset">
+                                        Create
+                                    </button>
+                                @endcan
                         </div>
 
                         <div class="border mt-1 shadow rounded" style="background-color: white;">

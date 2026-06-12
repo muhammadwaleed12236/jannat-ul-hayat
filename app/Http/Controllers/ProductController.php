@@ -517,6 +517,7 @@ class ProductController extends Controller
                 'sub_category_id' => $request->sub_category_id,
                 'item_code' => $nextCode,
                 'item_name' => $request->product_name,
+                'alert_qty' => $request->alert_qty ?? 0,
                 'barcode_path' => $request->barcode_path ?? rand(100000000000, 999999999999),
                 'unit_id' => $request->unit,
                 'brand_id' => $request->brand_id,
@@ -737,6 +738,7 @@ class ProductController extends Controller
                 'sub_category_id' => $request->sub_category_id,
                 'item_code' => $request->item_code ?? Product::where('id', $id)->value('item_code'),
                 'item_name' => $request->product_name,
+                'alert_qty' => $request->alert_qty ?? 0,
                 'barcode_path' => $request->barcode_path ?? rand(100000000000, 999999999999),
                 'unit_id' => $request->unit,
                 'brand_id' => $request->brand_id,
@@ -832,6 +834,7 @@ class ProductController extends Controller
         $categories = Category::all();
         $subcategories = SubCategory::all();
         $brands = Brand::all();
+        $units = Unit::all();
 
         // Calculate current stock from WarehouseStock (the real source of truth)
         $totalPieces = $product->warehouseStocks->sum('total_pieces');
@@ -846,7 +849,7 @@ class ProductController extends Controller
             $product->loose_pieces    = 0;
         }
 
-        return view('admin_panel.product.edit', compact('product', 'categories', 'subcategories', 'brands'));
+        return view('admin_panel.product.edit', compact('product', 'categories', 'subcategories', 'brands', 'units'));
     }
 
     // ===== Barcode view =====

@@ -822,8 +822,47 @@ class SaleController extends Controller
         // 3. Reuse nextInvoiceNumber var for current invoice no (view expects this variable name)
         $nextInvoiceNumber = $sale->invoice_no;
 
-        // 4. Return the Edit Sale View
-        return view('admin_panel.sale.edit_sale', compact('warehouse', 'customer', 'nextInvoiceNumber', 'accounts', 'sale'));
+        // 4. Return the Edit Sale View (same as create for consistent UI)
+        return view('admin_panel.sale.add_sale222', compact('warehouse', 'customer', 'nextInvoiceNumber', 'accounts', 'sale'));
+    }
+
+    public function getSaleItemsJson($id)
+    {
+        $sale = Sale::with(['items.product.warehouseStocks', 'items.product.unit', 'items.product.brand'])->findOrFail($id);
+        
+        $items = $sale->items->map(function ($item) {
+            $product = $item->product;
+            return [
+                'product_id' => $item->product_id,
+                'product_name' => $item->product_name,
+                'barcode' => $item->barcode,
+                'qty' => $item->qty,
+                'price' => $item->price,
+                'visible_price' => $item->price,
+                'price_per_piece' => $item->price,
+                'discount_percent' => $item->discount_percent,
+                'discount_amount' => $item->discount_amount,
+                'total' => $item->total,
+                'warehouse_id' => $item->warehouse_id,
+                'location' => $item->location,
+                'loose_pieces' => $item->loose_pieces,
+                'total_pieces' => $item->total_pieces,
+                'color' => $item->color ? json_decode($item->color, true) : [],
+                'pieces_per_box' => $product->pieces_per_box ?? 1,
+                'size_mode' => $item->size_mode ?? $product->size_mode ?? 'std',
+                'height' => $product->height ?? 0,
+                'width' => $product->width ?? 0,
+            ];
+        });
+
+        return response()->json([
+            'items' => $items,
+            'customer_id' => $sale->customer_id,
+            'reference' => $sale->reference,
+            'credit_days' => $sale->credit_days,
+            'sales_officer_id' => $sale->sales_officer_id,
+            'walkin_name' => $sale->walkin_name,
+        ]);
     }
 
     public function updatesale(Request $request, $id)

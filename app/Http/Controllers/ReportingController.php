@@ -152,6 +152,50 @@ class ReportingController extends Controller
         return view('admin_panel.reporting.profit_loss_report', compact('products', 'categories', 'customers'));
     }
 
+    public function low_stock_report()
+    {
+        $categories = \App\Models\Category::orderBy('name')->get();
+        return view('admin_panel.reporting.low_stock_report', compact('categories'));
+    }
+
+    public function fetchLowStock(Request $request)
+    {
+        $categoryId = $request->category_id;
+
+        $productsQuery = DB::table('products')
+            ->where('alert_qty', '>', 0)
+            ->whereNull('deleted_at');
+
+        if ($categoryId && $categoryId !== 'all') {
+            $productsQuery->where('category_id', $categoryId);
+        }
+
+        $products = $productsQuery->get();
+        $results = [];
+
+        foreach ($products as $product) {
+            // Sum stock from warehouse_stocks
+            $totalStock = DB::table('warehouse_stocks')
+                ->where('product_id', $product->id)
+                ->sum('total_pieces');
+
+            $alertQty = (float) $product->alert_qty;
+            if ($totalStock <= $alertQty) {
+                $categoryName = DB::table('categories')->where('id', $product->category_id)->value('name') ?? '-';
+                $results[] = [
+                    'item_code' => $product->item_code,
+                    'item_name' => $product->item_name,
+                    'category' => $categoryName,
+                    'current_stock' => (int) $totalStock,
+                    'alert_qty' => (int) $alertQty,
+                    'shortage' => (int) ($alertQty - $totalStock),
+                ];
+            }
+        }
+
+        return response()->json($results);
+    }
+
     public function fetchProfitLoss(Request $request)
     {
         $start = $request->start_date;
@@ -171,6 +215,64 @@ class ReportingController extends Controller
         $products = $productsQuery->get();
         $productStats = [];
         $totalGrossProfit = 0;
+
+        // Pre-load bottle product IDs for COGS merging
+        $bottleProductNames = DB::table('sale_items')
+            ->where('product_name', 'LIKE', '%(Free Bottle)%')
+            ->whereNotNull('product_id')
+            ->pluck('product_id')
+            ->unique()
+            ->toArray();
+
+        // Pre-load all free bottle items grouped by (sale_id, warehouse_id, location)
+        // so parent products can absorb their COGS
+        $freeBottlesQuery = DB::table('sale_items')
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->where('sale_items.product_name', 'LIKE', '%(Free Bottle)%')
+            ->select(
+                'sale_items.sale_id',
+                'sale_items.warehouse_id',
+                'sale_items.location',
+                'sale_items.product_id as bottle_product_id',
+                DB::raw('SUM(sale_items.total_pieces) as bottle_qty')
+            )
+            ->groupBy('sale_items.sale_id', 'sale_items.warehouse_id', 'sale_items.location', 'sale_items.product_id');
+
+        if ($start && $end) {
+            $freeBottlesQuery->whereBetween(DB::raw('DATE(sales.created_at)'), [$start, $end]);
+        }
+        if ($customerId && $customerId !== 'all') {
+            $freeBottlesQuery->where('sales.customer_id', $customerId);
+        }
+        $freeBottleItems = $freeBottlesQuery->get();
+
+        // Index by (sale_id, warehouse_id, location) for fast lookup
+        $freeBottleMap = [];
+        foreach ($freeBottleItems as $fb) {
+            $key = $fb->sale_id . '_' . $fb->warehouse_id . '_' . $fb->location;
+            $freeBottleMap[$key][] = $fb;
+        }
+
+        // Pre-calculate bottle average prices
+        $bottleAvgPrices = [];
+        foreach ($bottleProductNames as $bottlePid) {
+            $bInitial = (float) DB::table('stock_movements')
+                ->where('product_id', $bottlePid)
+                ->where('ref_type', 'INIT')
+                ->sum('qty');
+            $bPurchData = DB::table('purchase_items')
+                ->where('product_id', $bottlePid)
+                ->select(DB::raw('COALESCE(SUM(qty),0) as total_qty'), DB::raw('COALESCE(SUM(line_total),0) as total_amount'))
+                ->first();
+            $bPurchased = (float) $bPurchData->total_qty;
+            $bPurchAmount = (float) $bPurchData->total_amount;
+            $bProductModel = \App\Models\product::find($bottlePid);
+            $bUnitCost = (float) ($bProductModel->purchase_price_per_piece ?? 0);
+            $bInitAmount = $bInitial * $bUnitCost;
+            $bTotalQty = $bInitial + $bPurchased;
+            $bTotalAmount = $bInitAmount + $bPurchAmount;
+            $bottleAvgPrices[$bottlePid] = $bTotalQty > 0 ? ($bTotalAmount / $bTotalQty) : $bUnitCost;
+        }
 
         foreach ($products as $product) {
             // 1. Calculate Weighted Average Purchase Price (Same logic as Stock Report)
@@ -201,10 +303,12 @@ class ReportingController extends Controller
             $totalAmountIn = $initialAmount + $purchaseAmount;
             $averagePrice = $totalQtyIn > 0 ? ($totalAmountIn / $totalQtyIn) : $productPurchPrice;
 
-            // 2. Calculate Sales in the period
+            // 2. Calculate Sales in the period (exclude free bottle items)
             $saleQuery = DB::table('sale_items')
                 ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
-                ->where('sale_items.product_id', $product->id);
+                ->where('sale_items.product_id', $product->id)
+                ->whereNull('sale_items.product_name', 'or')
+                ->where('sale_items.product_name', 'NOT LIKE', '%(Free Bottle)%');
             
             if ($start && $end) {
                 $saleQuery->whereBetween(DB::raw('DATE(sales.created_at)'), [$start, $end]);
@@ -220,7 +324,43 @@ class ReportingController extends Controller
             $soldQty = (float) $saleStats->sold_qty;
             $soldQtyPieces = (float) $saleStats->sold_qty_pieces;
             $soldAmount = (float) $saleStats->sold_amount;
-            
+
+            // Skip bottle products as standalone rows — their COGS transfers to parent
+            $isBottle = in_array($product->id, $bottleProductNames);
+            if ($isBottle) {
+                continue;
+            }
+
+            // 2b. Merge free bottle COGS into this product from pre-computed map
+            $transferredCogs = 0;
+            $bottleQty = 0;
+            // We need to find which sale_items rows belong to this product to look up the bottle map
+            // Get (sale_id, warehouse_id, location) combos for this product's sale items
+            $parentCombosQuery = DB::table('sale_items')
+                ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+                ->where('sale_items.product_id', $product->id)
+                ->whereNull('sale_items.product_name', 'or')
+                ->where('sale_items.product_name', 'NOT LIKE', '%(Free Bottle)%')
+                ->select('sale_items.sale_id', 'sale_items.warehouse_id', 'sale_items.location');
+            if ($start && $end) {
+                $parentCombosQuery->whereBetween(DB::raw('DATE(sales.created_at)'), [$start, $end]);
+            }
+            if ($customerId && $customerId !== 'all') {
+                $parentCombosQuery->where('sales.customer_id', $customerId);
+            }
+            $parentCombos = $parentCombosQuery->get();
+
+            foreach ($parentCombos as $combo) {
+                $key = $combo->sale_id . '_' . $combo->warehouse_id . '_' . $combo->location;
+                if (isset($freeBottleMap[$key])) {
+                    foreach ($freeBottleMap[$key] as $bottleItem) {
+                        $bottleQty += (float) $bottleItem->bottle_qty;
+                        $bottleAvgPrice = $bottleAvgPrices[$bottleItem->bottle_product_id] ?? 0;
+                        $transferredCogs += (float) $bottleItem->bottle_qty * $bottleAvgPrice;
+                    }
+                }
+            }
+
             // Calculate Returns for this period
             $returnQuery = DB::table('stock_movements')
                 ->where('product_id', $product->id)
@@ -233,10 +373,10 @@ class ReportingController extends Controller
             $returnedQtyPieces = (float) $returnQuery->sum('qty');
             $returnedAmount = $returnedQtyPieces * $product->sale_price_per_piece; // Estimated return value
 
-            $costOfGoodsSold = $soldQtyPieces * $averagePrice;
+            $costOfGoodsSold = $soldQtyPieces * $averagePrice + $transferredCogs;
             $grossProfit = $soldAmount - $costOfGoodsSold;
 
-            if ($soldQty > 0 || $returnedQtyPieces > 0) {
+            if ($soldQty > 0 || $returnedQtyPieces > 0 || $transferredCogs > 0) {
                  $productStats[] = [
                     'item_code' => $product->item_code,
                     'item_name' => $product->item_name,
@@ -245,7 +385,8 @@ class ReportingController extends Controller
                     'revenue' => $soldAmount,
                     'avg_cost' => $averagePrice,
                     'cogs' => $costOfGoodsSold,
-                    'profit' => $grossProfit
+                    'profit' => $grossProfit,
+                    'bottle_cogs' => $transferredCogs
                 ];
                 $totalGrossProfit += $grossProfit;
             }
@@ -307,11 +448,14 @@ class ReportingController extends Controller
                 $custSaleQuery->whereBetween(DB::raw('DATE(sales.created_at)'), [$start, $end]);
             }
 
-            $custSaleItems = $custSaleQuery->select(
-                'sale_items.product_id', 
-                DB::raw('SUM(sale_items.total_pieces) as sold_qty_pieces'), 
-                DB::raw('SUM(sale_items.total) as sold_amount')
-            )
+            $custSaleItems = $custSaleQuery
+                ->whereNull('sale_items.product_name', 'or')
+                ->where('sale_items.product_name', 'NOT LIKE', '%(Free Bottle)%')
+                ->select(
+                    'sale_items.product_id', 
+                    DB::raw('SUM(sale_items.total_pieces) as sold_qty_pieces'), 
+                    DB::raw('SUM(sale_items.total) as sold_amount')
+                )
                 ->groupBy('sale_items.product_id')
                 ->get();
 

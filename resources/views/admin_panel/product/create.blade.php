@@ -20,20 +20,21 @@
             --primary: #4f46e5;
             --primary-hover: #4338ca;
             --primary-light: #eef2ff;
-            --bg-body: #f1f5f9;
+            --bg-body: #f8fafc;
             --bg-card: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
-            --radius-md: 10px;
+            --radius-md: 12px;
             --radius-lg: 16px;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
+            background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
             color: var(--text-main);
             padding-bottom: 40px;
+            min-height: 100vh;
         }
 
         .page-container {
@@ -46,16 +47,20 @@
         .section-card {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.06);
-            border: 1px solid var(--border-color);
-            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            margin-bottom: 20px;
             overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .section-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
         }
 
         .card-header-pro {
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--border-color);
-            background: #fff;
+            padding: 14px 20px;
+            border-bottom: none;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -64,7 +69,6 @@
         .card-title-pro {
             font-size: 0.9rem;
             font-weight: 700;
-            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -100,9 +104,14 @@
         }
 
         .form-control-pro:focus {
-            border-color: var(--primary);
+            border-color: #667eea;
             outline: 0;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .form-select-pro {
@@ -144,8 +153,10 @@
         }
 
         .img-uploader:hover {
-            border-color: var(--primary);
-            background: var(--primary-light);
+            border-color: #667eea;
+            background: linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
         }
 
         .img-uploader img {
@@ -237,14 +248,14 @@
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: var(--primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 16px 32px;
             border-radius: 50px;
             font-weight: 700;
             font-size: 1rem;
             border: none;
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.5);
             z-index: 100;
             display: flex;
             align-items: center;
@@ -253,8 +264,8 @@
         }
         .btn-save-floating:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.6);
-            background: var(--primary-hover);
+            box-shadow: 0 15px 30px -5px rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
             color: #fff;
         }
 
@@ -273,14 +284,14 @@
     <div class="page-container">
         
         {{-- Page Title --}}
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="d-flex align-items-center gap-2">
-                <a href="{{ route('product') }}" class="btn btn-white border shadow-sm rounded-circle p-0" style="width: 40px; height: 40px; display: grid; place-items: center;">
-                    <i class="las la-arrow-left"></i>
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ route('product') }}" class="btn btn-white border shadow-sm rounded-circle p-0" style="width: 42px; height: 42px; display: grid; place-items: center; transition: all 0.2s;">
+                    <i class="fas fa-arrow-left" style="color: #4f46e5;"></i>
                 </a>
                 <div>
-                    <h4 class="fw-bold mb-0 text-dark">Create Product</h4>
-                    <small class="text-muted">Add new item to inventory system</small>
+                    <h4 class="fw-bold mb-0" style="color: #1e293b; font-size: 1.3rem;">Create Product</h4>
+                    <small style="color: #94a3b8; font-size: 0.8rem;">Add new item to inventory system</small>
                 </div>
             </div>
         </div>
@@ -289,101 +300,101 @@
             @csrf
 
             {{-- SECTION 1: IDENTITY --}}
-            <div class="section-card">
-                <div class="card-header-pro">
-                    <h5 class="card-title-pro"><i class="las la-tag text-primary"></i> Product Identity</h5>
+            <div class="section-card" style="overflow: visible;">
+                <div class="card-header-pro" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-bottom: none;">
+                    <h5 class="card-title-pro" style="color: #fff;"><i class="fas fa-cube"></i> Product Identity</h5>
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #fff; font-weight: 600;">STEP 1</span>
                 </div>
-                <div class="card-body-pro">
+                <div class="card-body-pro" style="padding: 24px;">
                     <div class="identity-wrapper">
                         {{-- Image (Left) --}}
-                        <div class="image-section">
+                        <div class="image-section" style="width: 180px;">
                             <input type="file" id="imageInput" name="image" class="d-none" accept="image/*">
-                            <div class="img-uploader" onclick="document.getElementById('imageInput').click()">
+                            <div class="img-uploader" onclick="document.getElementById('imageInput').click()" style="border: 2px dashed #c7d2fe; background: linear-gradient(145deg, #f5f7ff 0%, #eef2ff 100%); border-radius: 16px; transition: all 0.3s ease;">
                                 <button type="button" id="clearImageBtn" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 d-none rounded-circle" style="width:24px;height:24px;padding:0;z-index: 10;">&times;</button>
-                                <img id="preview" class="d-none">
+                                <img id="preview" class="d-none" style="border-radius: 12px;">
                                 <div id="uploadPlaceholder" class="text-center">
-                                    <div class="bg-white p-3 rounded-circle shadow-sm d-inline-block mb-3">
-                                        <i class="las la-camera fs-1 text-primary"></i>
+                                    <div style="width: 60px; height: 60px; margin: 0 auto 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                        <i class="fas fa-camera" style="color: #fff; font-size: 1.3rem;"></i>
                                     </div>
-                                    <h6 class="fw-bold mb-1">Upload Image</h6>
-                                    <small class="text-muted">Click to browse</small>
+                                    <h6 class="fw-bold mb-1" style="color: #4f46e5; font-size: 0.85rem;">Upload Photo</h6>
+                                    <small class="text-muted" style="font-size: 0.7rem;">JPG, PNG up to 5MB</small>
                                 </div>
                             </div>
                         </div>
 
                         {{-- Details (Right) --}}
                         <div class="details-section">
-                            <div class="row g-2">
-                                {{-- Row 1: Name & Barcode --}}
+                            {{-- Row 1: Name & Barcode --}}
+                            <div class="row g-3 mb-3">
                                 <div class="col-md-8">
-                                    <label class="form-label-pro">Product Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control-pro fs-6 fw-bold" name="product_name" required placeholder="e.g. Ceramic Floor Tile 60x60">
+                                    <label class="form-label-pro" style="color: #4f46e5; font-size: 0.75rem;"><i class="fas fa-tag me-1"></i>Product Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control-pro" name="product_name" required placeholder="e.g. Ceramic Floor Tile 60x60" style="font-size: 0.95rem; font-weight: 600; padding: 12px 16px; border-radius: 12px; border: 2px solid #e2e8f0; transition: all 0.3s;">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label-pro">Barcode Auto-Gen</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control form-control-pro" id="barcodeInput" name="barcode_path">
-                                        <button type="button" class="btn btn-light border px-2" id="generateBarcodeBtn"><i class="las la-magic fs-5"></i></button>
+                                    <label class="form-label-pro" style="color: #4f46e5; font-size: 0.75rem;"><i class="fas fa-barcode me-1"></i>Barcode</label>
+                                    <div class="input-group" style="border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0; transition: all 0.3s;">
+                                        <input type="text" class="form-control" id="barcodeInput" name="barcode_path" style="border: none; padding: 12px 16px; font-weight: 600; font-size: 0.95rem; background: #f8fafc;">
+                                        <button type="button" class="btn" id="generateBarcodeBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; padding: 0 16px; font-size: 1.1rem;"><i class="fas fa-wand-magic-sparkles"></i></button>
                                     </div>
                                 </div>
+                            </div>
 
-                                {{-- Row 2: Categorization --}}
+                            {{-- Divider --}}
+                            <div style="height: 1px; background: linear-gradient(90deg, transparent, #e2e8f0, transparent); margin: 20px 0;"></div>
+
+                            {{-- Row 2: Categorization --}}
+                            <div class="row g-3">
                                 <div class="col-md-3">
-                                    <label class="form-label-pro">Category <span class="text-danger">*</span></label>
+                                    <label class="form-label-pro" style="color: #4f46e5; font-size: 0.75rem;"><i class="fas fa-layer-group me-1"></i>Category <span class="text-danger">*</span></label>
                                     <div class="d-flex gap-1">
-                                        <select class="form-select form-control-pro form-select-pro" id="category-dropdown" name="category_id" required>
+                                        <select class="form-select form-control-pro form-select-pro" id="category-dropdown" name="category_id" required style="border-radius: 10px;">
                                             <option value="">Select...</option>
                                             @foreach ($categories as $cat)
                                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                             @endforeach
                                         </select>
-                                        <button type="button" class="btn btn-light border px-2" data-toggle="modal" data-target="#categoryModal">+</button>
+                                        <button type="button" class="btn btn-sm" style="background: #eef2ff; color: #4f46e5; border-radius: 10px; font-weight: 700; border: 2px solid #c7d2fe;" data-toggle="modal" data-target="#categoryModal">+</button>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label-pro">Sub Category</label>
+                                    <label class="form-label-pro" style="color: #4f46e5; font-size: 0.75rem;"><i class="fas fa-folder-open me-1"></i>Sub Category</label>
                                     <div class="d-flex gap-1">
-                                        <select class="form-select form-control-pro form-select-pro" id="subcategory-dropdown" name="sub_category_id">
+                                        <select class="form-select form-control-pro form-select-pro" id="subcategory-dropdown" name="sub_category_id" style="border-radius: 10px;">
                                             <option value="">Select...</option>
                                         </select>
-                                        <button type="button" class="btn btn-light border px-2" data-toggle="modal" data-target="#subcategoryModal">+</button>
+                                        <button type="button" class="btn btn-sm" style="background: #eef2ff; color: #4f46e5; border-radius: 10px; font-weight: 700; border: 2px solid #c7d2fe;" data-toggle="modal" data-target="#subcategoryModal">+</button>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label-pro">Brand</label>
-                                    <select class="form-select form-control-pro form-select-pro" id="brand-dropdown" name="brand_id" required>
+                                    <label class="form-label-pro" style="color: #4f46e5; font-size: 0.75rem;"><i class="fas fa-award me-1"></i>Brand</label>
+                                    <select class="form-select form-control-pro form-select-pro" id="brand-dropdown" name="brand_id" style="border-radius: 10px;">
                                         <option value="">Select...</option>
                                         @foreach ($brands as $brand)
                                             <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                 <!-- <div class="col-md-3">
-                                     <label class="form-label-pro">Model / Series</label>
-                                     <input type="text" class="form-control-pro" name="model" placeholder="Optional">
-                                 </div> -->
-
-                                 {{-- Row 3: Colors --}}
-                                 <!-- <div class="col-md-12">
-                                     <label class="form-label-pro">Colors</label>
-                                     <select class="form-control-pro" name="color[]" id="color-select" multiple="multiple" style="width: 100%">
-                                         <option value="Black">Black</option>
-                                         <option value="White">White</option>
-                                         <option value="Red">Red</option>
-                                         <option value="Blue">Blue</option>
-                                         <option value="Beige">Beige</option>
-                                     </select>
-                                 </div> -->
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
+                                <div class="col-md-3">
+                                    <label class="form-label-pro" style="color: #4f46e5; font-size: 0.75rem;"><i class="fas fa-ruler me-1"></i>Unit</label>
+                                    <select class="form-select form-control-pro form-select-pro" id="unit-dropdown" name="unit" style="border-radius: 10px;">
+                                        <option value="">Select...</option>
+                                        @foreach ($units as $u)
+                                            <option value="{{ $u->id }}">{{ $u->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {{-- SECTION 2: MEASUREMENTS & STOCK --}}
             <div class="section-card">
-                <div class="card-header-pro">
-                    <h5 class="card-title-pro"><i class="las la-ruler-combined text-info"></i> Dimensions & Stock</h5>
+                <div class="card-header-pro" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                    <h5 class="card-title-pro" style="color: #fff;"><i class="fas fa-ruler-combined"></i> Dimensions & Stock</h5>
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #fff; font-weight: 600;">STEP 2</span>
                 </div>
                 <div class="card-body-pro">
                     <div class="specs-grid">
@@ -400,8 +411,16 @@
                             <div class="specs-inputs">
                                 {{-- Piece Only (default) --}}
                                 <div class="group-piece-only">
-                                    <label class="form-label-pro">Total Quantity</label>
-                                    <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="piece_quantity" id="piece_quantity" placeholder="0">
+                                    <div class="row g-2">
+                                        <div class="col-8">
+                                            <label class="form-label-pro">Total Quantity</label>
+                                            <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="piece_quantity" id="piece_quantity" placeholder="0">
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label-pro">Low Stock Alert</label>
+                                            <input type="number" class="form-control-pro border-warning text-warning fw-bold" name="alert_qty" placeholder="0" min="0">
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {{-- By Carton Inputs --}}
@@ -416,9 +435,16 @@
                                             <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="boxes_quantity" id="boxes_quantity" placeholder="0">
                                         </div>
                                     </div>
-                                    <div>
-                                        <label class="form-label-pro text-warning">Loose Pieces</label>
-                                        <input type="number" class="form-control-pro border-warning" name="loose_pieces" id="loose_pieces">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6">
+                                            <label class="form-label-pro text-warning">Loose Pieces</label>
+                                            <input type="number" class="form-control-pro border-warning" name="loose_pieces" id="loose_pieces">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label-pro">Low Stock Alert</label>
+                                            <input type="number" class="form-control-pro border-warning text-warning fw-bold" name="alert_qty" placeholder="0" min="0">
+                                        </div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -439,8 +465,9 @@
 
             {{-- SECTION 3: FINANCIALS --}}
             <div class="section-card">
-                <div class="card-header-pro">
-                    <h5 class="card-title-pro"><i class="las la-wallet text-success"></i> Pricing & Value</h5>
+                <div class="card-header-pro" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <h5 class="card-title-pro" style="color: #fff;"><i class="fas fa-wallet"></i> Pricing & Value</h5>
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: #fff; font-weight: 600;">STEP 3</span>
                 </div>
                 <div class="card-body-pro">
                     <div class="financials-grid">
@@ -741,6 +768,7 @@
             $('#category-dropdown').select2({ placeholder: "Select Category", allowClear: true, width: '100%' });
             $('#subcategory-dropdown').select2({ placeholder: "Select Subcategory", allowClear: true, width: '100%' });
             $('#brand-dropdown').select2({ placeholder: "Select Brand", allowClear: true, width: '100%' });
+            $('#unit-dropdown').select2({ placeholder: "Select Unit", allowClear: true, width: '100%' });
 
             $('#category-dropdown').on('change', function() {
                 var cid = $(this).val();

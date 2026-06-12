@@ -250,7 +250,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addVendorModal" style="padding: 0.38rem 0.75rem;" title="Add New Vendor">
+                                        <button type="button" class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#addVendorModal" style="padding: 0.38rem 0.75rem;" title="Add New Vendor">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
                                 </div>

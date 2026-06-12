@@ -5,7 +5,11 @@
     <style>
         @page {
             margin: 0;
-            size: 37mm 28mm;
+            padding: 0;
+            size: 42mm 30mm;
+        }
+        @media print {
+            @page { margin: 0; padding: 0; }
         }
         body {
             font-family: 'Arial Black', Arial, sans-serif;
@@ -25,8 +29,8 @@
             margin: 10px;
         }
         .label {
-            width: 37mm;
-            height: 28mm;
+            width: 42mm;
+            height: 30mm;
             padding: 2px;
             text-align: center;
             overflow: hidden;
@@ -35,7 +39,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            /* border: 1px dashed #ccc; */
         }
         .barcode {
             display: flex;
@@ -117,13 +120,13 @@
     @foreach($sale->items as $item)
         @php
             $product = $item->product;
-            $totalCount = $sale->items->count();
+            $itemPrice = (float) ($item->price ?? 0);
         @endphp
-        @if($product)
+        @if($product && $itemPrice > 0)
         <div class="label-wrapper selected" id="wrapper-{{ $loop->index }}">
             <input type="checkbox" checked class="selection-checkbox" onclick="toggleSelection({{ $loop->index }})">
             
-            <div class="label" style="padding: 2px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box;">
+            <div class="label">
                 <div style="font-size: 10px; text-transform: uppercase; line-height: 1.2; width: 100%;">JANNAT UL HAYAT</div>
                 
                 @php
@@ -138,12 +141,9 @@
                     {{ $product->item_name }}
                 </div>
 
-                <div class="barcode" style="width: 100%; display: flex; justify-content: center;">
+                <div class="barcode">
                     {!! DNS1D::getBarcodeSVG($barcodeValue, 'C128', 0.9, 38) !!}
                 </div>
-            </div>
-
-               
             </div>
         </div>
         @endif

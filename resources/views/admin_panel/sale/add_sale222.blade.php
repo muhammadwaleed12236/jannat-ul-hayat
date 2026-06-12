@@ -396,7 +396,7 @@
                                         value="Walking Customer">
                                     <label class="btn btn-outline-primary btn-sm" for="typeWalkin">Walk-in</label>
                                 </div>
-                                <button type="button" class="mb-2 btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#addCustomerModal" title="Add New Customer">
+                                <button type="button" class="mb-2 btn btn-sm btn-outline-success" data-toggle="modal" data-target="#addCustomerModal" title="Add New Customer">
                                     <i class="fas fa-plus"></i> Add
                                 </button>
                             </div>
@@ -923,4 +923,108 @@
             });
         });
     </script>
+        @if (isset($sale))
+    <script>
+        // Pre-defined safe PHP data for JS (uses JSON to avoid unescaped strings breaking JS)
+        var editSaleData = @json([
+            'id' => $sale->id,
+            'customer_id' => $sale->customer_id,
+            'walkin_name' => $sale->walkin_name,
+            'reference' => $sale->reference,
+            'credit_days' => $sale->credit_days,
+            'sales_officer_id' => $sale->sales_officer_id,
+            'created_at' => optional($sale->created_at)->format('Y-m-d H:i'),
+            'customer' => $sale->customer_id && $sale->customer_relation ? [
+                'customer_id' => $sale->customer_relation->customer_id,
+                'customer_name' => $sale->customer_relation->customer_name,
+                'mobile' => $sale->customer_relation->mobile,
+                'address' => $sale->customer_relation->address,
+                'previous_balance' => $sale->customer_relation->previous_balance,
+                'balance_range' => $sale->customer_relation->balance_range,
+                'sales_officer_id' => $sale->customer_relation->sales_officer_id,
+            ] : null,
+        ]);
+
+        // Fallback: hide loader after 8 sec regardless (outside ready() so it always fires)
+        var editLoaderTimeout = setTimeout(function() {
+            $('#pageLoader').addClass('d-none');
+        }, 8000);
+
+        $(document).ready(function() {
+            console.log("Loading Edit Mode for Sale #" + editSaleData.id);
+            $('#booking_id').val(editSaleData.id);
+            if (editSaleData.created_at) {
+                $('#entryDateTime').text("Date: " + editSaleData.created_at);
+            }
+
+            // Set customer and party type
+            if (editSaleData.customer_id) {
+                $('#typeCustomers').prop('checked', true).trigger('change');
+                setTimeout(function() {
+                    var c = editSaleData.customer;
+                    if (!c) return;
+                    var label = c.customer_id + ' \u2014 ' + c.customer_name;
+                    var newOption = new Option(label, c.customer_id, true, true);
+                    $('#customerSelect').append(newOption).trigger('change');
+                    $('#customerSelect').trigger({
+                        type: 'select2:select',
+                        params: {
+                            data: {
+                                id: c.customer_id,
+                                text: label,
+                                customer: c
+                            }
+                        }
+                    });
+                }, 500);
+            } else {
+                $('#typeWalkin').prop('checked', true).trigger('change');
+                setTimeout(function() {
+                    $('#walkin_name').val(editSaleData.walkin_name || '');
+                }, 500);
+            }
+
+            // Set reference
+            $('#remarks').val(editSaleData.reference || '');
+            // Set credit days
+            $('#credit_days').val(editSaleData.credit_days || '');
+            // Set sales officer
+            if (editSaleData.sales_officer_id) {
+                setTimeout(function() {
+                    $('#salesOfficerSelect').val(editSaleData.sales_officer_id);
+                }, 500);
+            }
+
+            // Load sale items via AJAX
+            $.ajax({
+                url: '{{ route('sales.items_json', $sale->id) }}',
+                type: 'GET',
+                timeout: 15000,
+                success: function(res) {
+                    clearTimeout(editLoaderTimeout);
+                    try {
+                        if (res.items && res.items.length > 0) {
+                            res.items.forEach(function(item) {
+                                try { appendNewRow(item); } catch(e) { console.error('appendNewRow error', e); }
+                            });
+                        }
+                        $('#salesTableBody tr').each(function() {
+                            if (typeof computeRow === 'function') {
+                                try { computeRow($(this)); } catch(e) { console.error('computeRow error', e); }
+                            }
+                        });
+                        if (typeof updateGrandTotals === 'function') updateGrandTotals();
+                    } catch(e) { console.error('Edit load error', e); }
+                    $('#pageLoader').addClass('d-none');
+                },
+                error: function(xhr, status, error) {
+                    clearTimeout(editLoaderTimeout);
+                    console.error('AJAX error', status, error, xhr.responseText);
+                    $('#pageLoader').addClass('d-none');
+                    Swal.fire('Error', 'Failed to load sale items', 'error');
+                }
+            });
+        });
+    </script>
+    @endif
 @endsection

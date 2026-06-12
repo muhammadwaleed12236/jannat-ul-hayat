@@ -252,7 +252,7 @@
             <div class="col-7">
                 <div class="gp-actions-center text-center">
 
-                    <a href="javascript:void(0)" class="gp-action-btn" data-bs-toggle="modal" data-bs-target="#vendorModal">
+                    <a href="javascript:void(0)" class="gp-action-btn" data-toggle="modal" data-target="#vendorModal">
                         <i class="fa fa-user-plus"></i>
                         <span>Vendor</span>
                     </a>

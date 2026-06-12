@@ -230,6 +230,7 @@
                                             <th class="text-center" style="font-size:12px; color:#6b7280;">Returns</th>
                                             <th class="text-end" style="font-size:12px; color:#6b7280;">Revenue</th>
                                             <th class="text-end" style="font-size:12px; color:#6b7280;">COGS</th>
+                                            <th class="text-end" style="font-size:12px; color:#7c3aed;">Bottle COGS</th>
                                             <th class="text-end pe-4" style="font-size:12px; color:#6b7280;">Profit</th>
                                         </tr>
                                     </thead>
@@ -294,7 +295,7 @@ $(document).ready(function() {
         pageLength: 15,
         searching: true,
         ordering: true,
-        order: [[5, 'desc']],
+        order: [[7, 'desc']],
         language: { search: '', searchPlaceholder: 'Search items...' },
         columns: [
             { data: 'item_code' },
@@ -303,6 +304,7 @@ $(document).ready(function() {
             { data: 'returned_qty', className: 'text-center' },
             { data: 'revenue', className: 'text-end' },
             { data: 'cogs', className: 'text-end' },
+            { data: 'bottle_cogs', className: 'text-end' },
             { data: 'profit', className: 'text-end' }
         ]
     });
@@ -353,6 +355,7 @@ $(document).ready(function() {
                 returned_qty: '<span class="text-danger fw-bold">' + (r.returned_qty || 0) + '</span>',
                 revenue: fmt(r.revenue),
                 cogs: fmt(r.cogs),
+                bottle_cogs: parseFloat(r.bottle_cogs) > 0 ? '<span style="color:#7c3aed; font-weight:600;">' + fmt(r.bottle_cogs) + '</span>' : '<span class="text-muted">-</span>',
                 profit: '<span style="color:' + profitColor + '; font-weight:700;">' + fmt(r.profit) + '</span>'
             });
             if (chartLabels.length < 5 && parseFloat(r.profit) > 0) {

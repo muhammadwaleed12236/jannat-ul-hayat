@@ -10,11 +10,11 @@
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center text-white">
                 <h6 class="mb-0">Voucher List</h6>
-                @can('expense.voucher.create')
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voucherModal">
-                        <i class="bi bi-plus-circle"></i> Add Voucher
-                    </button>
-                @endcan
+                    @can('expense.voucher.create')
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#voucherModal">
+                            <i class="bi bi-plus-circle"></i> Add Voucher
+                        </button>
+                    @endcan
             </div>
 
             <div class="card-body">
@@ -51,7 +51,7 @@
                                             data-type="{{ $voucher->type }}" data-person="{{ $voucher->person }}"
                                             data-sub_head="{{ $voucher->sub_head }}"
                                             data-narration="{{ $voucher->narration }}" data-amount="{{ $voucher->amount }}"
-                                            data-bs-toggle="modal" data-bs-target="#voucherModal">
+                                            data-toggle="modal" data-target="#voucherModal">
                                             Edit
                                         </button>
                                     @endcan
@@ -328,7 +328,7 @@
             });
 
             // Reset Form on Add New Click
-            $('[data-bs-target="#voucherModal"]').on('click', function() {
+            $('[data-target="#voucherModal"]').on('click', function() {
                 $('#voucherModalLabel').text('Add Voucher');
                 $('#voucher_id').val('');
                 $('#voucherModal form')[0].reset();

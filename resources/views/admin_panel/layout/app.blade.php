@@ -674,6 +674,9 @@
                                             <li><a href="{{ route('reports.onhand') }}"><i class="fas fa-warehouse"></i>
                                                     Inventory On-Hand</a></li>
                                         @endcan
+
+                                        <li><a href="{{ route('report.low_stock') }}"><i class="fas fa-exclamation-triangle text-danger"></i>
+                                                Low Stock Alert</a></li>
                                         
                                         @can('profit.loss.report.view')
                                             <li><a href="{{ route('report.profit_loss') }}"><i class="fa-solid fa-chart-line"></i>

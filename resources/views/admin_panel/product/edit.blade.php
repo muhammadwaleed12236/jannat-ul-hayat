@@ -368,6 +368,15 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-md-3">
+                                    <label class="form-label-pro">Unit</label>
+                                    <select class="form-select form-control-pro form-select-pro" id="unit-dropdown" name="unit" required>
+                                        <option value="">Select...</option>
+                                        @foreach ($units as $u)
+                                            <option value="{{ $u->id }}" {{ $product->unit_id == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                              </div>
                          </div>
                      </div>
@@ -394,8 +403,16 @@
                             <div class="specs-inputs">
                                 {{-- Piece Only (default) --}}
                                 <div class="group-piece-only {{ $product->size_mode == 'by_pieces' || !$product->size_mode ? '' : 'd-none' }}">
-                                    <label class="form-label-pro">Total Quantity</label>
-                                    <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="piece_quantity" id="piece_quantity" placeholder="0" value="{{ $product->piece_quantity }}">
+                                    <div class="row g-2">
+                                        <div class="col-8">
+                                            <label class="form-label-pro">Total Quantity</label>
+                                            <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="piece_quantity" id="piece_quantity" placeholder="0" value="{{ $product->piece_quantity }}">
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label-pro">Low Stock Alert</label>
+                                            <input type="number" class="form-control-pro border-warning text-warning fw-bold" name="alert_qty" placeholder="0" min="0" value="{{ $product->alert_qty ?? 0 }}">
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {{-- By Carton Inputs --}}
@@ -410,9 +427,15 @@
                                             <input type="number" class="form-control-pro border-primary text-primary fw-bold" name="boxes_quantity" id="boxes_quantity" placeholder="0" value="{{ $product->boxes_quantity }}">
                                         </div>
                                     </div>
-                                    <div>
-                                        <label class="form-label-pro text-warning">Loose Pieces</label>
-                                        <input type="number" class="form-control-pro border-warning" name="loose_pieces" id="loose_pieces" value="{{ $product->loose_pieces }}">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label-pro text-warning">Loose Pieces</label>
+                                            <input type="number" class="form-control-pro border-warning" name="loose_pieces" id="loose_pieces" value="{{ $product->loose_pieces }}">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label-pro">Low Stock Alert</label>
+                                            <input type="number" class="form-control-pro border-warning text-warning fw-bold" name="alert_qty" placeholder="0" min="0" value="{{ $product->alert_qty ?? 0 }}">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -736,6 +759,7 @@
             $('#category-dropdown').select2({ placeholder: "Select Category", allowClear: true, width: '100%' });
             $('#subcategory-dropdown').select2({ placeholder: "Select Subcategory", allowClear: true, width: '100%' });
             $('#brand-dropdown').select2({ placeholder: "Select Brand", allowClear: true, width: '100%' });
+            $('#unit-dropdown').select2({ placeholder: "Select Unit", allowClear: true, width: '100%' });
 
             $('#category-dropdown').on('change', function() {
                 var cid = $(this).val();

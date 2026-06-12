@@ -11,7 +11,7 @@
                     </div>
                     <div class="page-btn d-flex justify-content-end col-lg-6">
                         @can('warehouse.create')
-                            <button class="btn btn-outline-primary mb-2" data-bs-toggle="modal" data-bs-target="#warehouseModal"
+                            <button class="btn btn-outline-primary mb-2" data-toggle="modal" data-target="#warehouseModal"
                                 onclick="clearWarehouse()">Add Warehouse</button>
                         @endcan
                     </div>
@@ -47,7 +47,7 @@
                                                 <button class="btn btn-primary btn-sm edit-warehouse-btn"
                                                     data-id="{{ $w->id }}" data-name="{{ $w->warehouse_name }}"
                                                     data-location="{{ $w->location }}" data-remarks="{{ $w->remarks }}"
-                                                    data-bs-toggle="modal" data-bs-target="#warehouseModal">
+                                                    data-toggle="modal" data-target="#warehouseModal">
                                                     Edit
                                                 </button>
                                             @endcan

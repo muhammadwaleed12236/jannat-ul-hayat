@@ -275,6 +275,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/sales/{id}/invoice', [SaleController::class, 'saleinvoice'])->middleware('permission:sales.view')->name('sales.invoice');
     Route::get('/sales/{id}/edit', [SaleController::class, 'saleedit'])->middleware('permission:sales.edit')->name('sales.edit');
+    Route::get('/sales/{id}/items-json', [SaleController::class, 'getSaleItemsJson'])->middleware('permission:sales.edit')->name('sales.items_json');
     Route::put('/sales/{id}', [SaleController::class, 'updatesale'])->middleware('permission:sales.edit')->name('sales.update');
     Route::get('/sales/{id}/dc', [SaleController::class, 'saledc'])->middleware('permission:sales.view')->name('sales.dc');
     Route::get('/sales/{id}/dc-thermal', [SaleController::class, 'saledcThermal'])->middleware('permission:sales.view')->name('sales.dc_thermal');
@@ -396,6 +397,9 @@ Route::middleware('auth')->group(function () {
     Route::get('report/vendor-ledger/fetch', [ReportingController::class, 'fetch_vendor_ledger'])->middleware('permission:vendor.ledger.view')->name('report.vendor.ledger.fetch');
 
     Route::get('reports/onhand', [ReportingController::class, 'onhand'])->middleware('permission:inventory.onhand.view')->name('reports.onhand');
+
+    Route::get('report/low-stock', [ReportingController::class, 'low_stock_report'])->name('report.low_stock');
+    Route::get('report/low-stock/fetch', [ReportingController::class, 'fetchLowStock'])->name('report.low_stock.fetch');
 
     // Return modules list for permission dropdowns (AJAX)
     Route::get('/modules/list', function () {

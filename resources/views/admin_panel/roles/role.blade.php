@@ -772,7 +772,7 @@
                         <p class="page-subtitle">Manage user roles and their permissions</p>
                     </div>
                     @can('roles.create')
-                        <button type="button" class="btn btn-create-role" data-bs-toggle="modal" data-bs-target="#roleModal"
+                        <button type="button" class="btn btn-create-role" data-toggle="modal" data-target="#roleModal"
                             id="createRoleBtn">
                             <i class="fa fa-plus"></i> Create Role
                         </button>

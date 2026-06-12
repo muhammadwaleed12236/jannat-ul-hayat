@@ -211,6 +211,43 @@
         initProductSelect2($row.find('.product'));
     }
 
+    // --- appendNewRow: Add row with pre-filled data (for Edit mode) ---
+    function appendNewRow(item) {
+        addNewRow();
+        var $row = $('#salesTableBody tr:last');
+        var productId = item.product_id || item.productId;
+
+        if (productId) {
+            var productName = item.product_name || ('Product #' + productId);
+            var opt = new Option(productName, productId, true, true);
+            $row.find('.product').append(opt).trigger('change');
+            // Set size_mode data attribute for computeRow
+            $row.data('size_mode', item.size_mode || 'std');
+        }
+
+        // Set all hidden + visible fields directly (no setTimeout needed)
+        $row.find('.sales-qty').val(item.qty || '');
+        $row.find('.visible-price').val(item.price || item.price_per_piece || '');
+        $row.find('.price-per-piece').val(item.price || item.price_per_piece || '');
+        $row.find('.discount-value').val(item.discount_percent || 0);
+        $row.find('.warehouse-id-hidden').val(item.warehouse_id || '');
+        $row.find('.location-input').val(item.location || '');
+        $row.find('.loose_pieces').val(item.loose_pieces || 0);
+        $row.find('.total_pieces').val(item.total_pieces || '');
+        $row.find('.pack-qty').val(item.pieces_per_box || '');
+        $row.find('.size-h').val(item.height || 0);
+        $row.find('.size-w').val(item.width || 0);
+        $row.find('.item-code-display').val(item.barcode || '');
+
+        if (item.bottle_product_id) {
+            $row.find('.bottle-product-id').val(item.bottle_product_id);
+        }
+        if (item.include_bottle !== undefined) {
+            $row.find('.include-bottle-check').prop('checked', !!item.include_bottle);
+            $row.find('.include-bottle-hidden').val(item.include_bottle ? 1 : 0);
+        }
+    }
+
     // --- Loading Data for Rows ---
 
     function fetchProductPrice($row, productId) {

@@ -175,33 +175,20 @@
         }
 
         @media print {
-            body {
-                background: #fff;
-                margin: 0;
-                padding: 0;
-            }
-
-            .invoice-container {
-                width: 100%;
-                max-width: 100%;
-                margin: 0;
-                padding: 10px;
-                box-shadow: none;
-                border: none;
-                min-height: auto;
-            }
-
-            .print-btn-container {
-                display: none;
-            }
-
-            .no-print {
-                display: none;
-            }
-
-            @page {
-                margin: 5mm;
-            }
+            @page { margin: 5mm; }
+            body { background: #fff; margin: 0; padding: 0; color: #000 !important; }
+            body * { color: #000 !important; }
+            .invoice-container { width: 100%; max-width: 100%; margin: 0; padding: 10px; box-shadow: none; border: none; min-height: auto; }
+            .print-btn-container { display: none; }
+            .no-print { display: none; }
+            .text-muted { color: #000 !important; }
+            .text-danger { color: #000 !important; }
+            .text-success { color: #000 !important; }
+            .text-primary { color: #000 !important; }
+            .badge { background: none !important; color: #000 !important; border: 1px solid #000 !important; }
+            small, .small { color: #000 !important; }
+            span { color: #000 !important; }
+            td, th { color: #000 !important; }
         }
     </style>
 </head>
@@ -238,7 +225,7 @@
         @if(!($isEstimate ?? false))
         <div class="row g-2 mb-2">
             <!-- Left Box: Customer Info -->
-            <div class="col-4">
+            <div class="col-8">
                 <div class="info-box">
                     <div class="info-box-header">Customer</div>
                     @if($sale->walkin_name)
@@ -258,7 +245,7 @@
             </div>
 
             <!-- Middle Box: Sales Person / Meta -->
-            <div class="col-4">
+            {{-- <div class="col-4">
                 <div class="info-box">
                     <div class="info-box-header">Details</div>
                     <div><span class="info-label">Maker:</span> {{ auth()->user()->name ?? 'Admin' }}</div>
@@ -270,7 +257,7 @@
                         <strong>{{ $officer?->name ?? auth()->user()->name ?? 'Admin' }}</strong>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Right Box: Invoice Specifics -->
             <div class="col-4">
@@ -323,6 +310,8 @@
             </thead>
             <tbody>
                 @foreach ($saleItems as $item)
+                    @php $isFree = str_contains($item['item_name'] ?? '', '(Free Bottle)'); @endphp
+                    @if($isFree) @continue @endif
                     @php
                         // Get dimensions from database
                         $height = $item['height'] ?? 0;
@@ -342,82 +331,24 @@
                         // Total M2 for line
                         $totalM2Line = $m2PerPiece * $totalPieces;
                         $sizeMode = $item['size_mode'] ?? 'by_size';
+                        $unitName = $item['unit'] ?? 'Pcs';
+                        if (empty($unitName)) $unitName = 'Pcs';
                     @endphp
-                    @php $isFree = str_contains($item['item_name'] ?? '', '(Free Bottle)'); @endphp
-                    <tr @if($isFree) style="background: #f0fff4;" @endif>
+                    <tr>
                         <td class="text-start">
-                            <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px;">
-                                @if($isFree)
-                                    <span class="badge bg-success me-1" style="font-size: 9px;">FREE</span>
-                                @endif
+                            <div style="font-weight: bold; font-size: 12px;">
                                 {{ $item['item_name'] }}
-                                @if (!empty($item['item_code']))
-                                    <span class="text-muted fw-normal ms-1"
-                                        style="font-size: 11px;">({{ $item['item_code'] }})</span>
-                                @endif
-                            </div>
-
-                            <div style="font-size: 11px; color: #555; line-height: 1.2;">
-                                @if (!empty($item['color']))
-                                    <span class="badge bg-light text-dark border p-1"
-                                        style="font-size: 9px; line-height:1;">
-                                        @foreach ($item['color'] as $clr)
-                                            {{ $clr }}
-                                        @endforeach
-                                    </span>
-                                @endif
-
-                                @if ($sizeMode == 'by_size')
-                                    <span class='d-inline-block ms-1'>
-                                        @if ($height > 0 && $width > 0)
-                                            Dims: {{ number_format($width, 0) }}x{{ number_format($height, 0) }}
-                                        @endif
-                                    </span>
-                                @endif
-
-                                @if ($piecesPerBox > 1)
-                                <span class="d-inline-block ms-1">
-                                    Pack: {{ $piecesPerBox }} pcs
-                                </span>
-                                @endif
                             </div>
                         </td>
 
                         <td class="text-center" style="vertical-align: middle;">
-                            <div style="font-weight: bold; color: #2c3e50;">
-                              
-                                @if ($sizeMode == 'by_pieces')
-                                    {{ $totalPieces }} Pcs
-                                @else
-                                    @if ($boxes > 0 && $loosePieces > 0)
-                                        {{ $boxes }} {{ $sizeMode == 'by_cartons' ? 'Carton' : 'Box' }} +
-                                        {{ $loosePieces }} Pc
-                                    @elseif ($boxes > 0)
-                                        {{ $boxes }} {{ $sizeMode == 'by_cartons' ? 'Carton' : 'Box' }}
-                                    @else
-                                        {{ $loosePieces }} Pcs
-                                    @endif
-                                @endif
+                            <div style="font-weight: bold;">
+                                {{ $totalPieces }} {{ $unitName }}
                             </div>
-                            <small class="text-muted" style="font-size: 10px;">({{ $totalPieces }} pcs)</small>
                         </td>
 
                         <td class="text-center" style="vertical-align: middle;">
-
-                            @if ($sizeMode == 'by_pieces')
-                            <span class="fw-bold">
-                            Peices
-                        </span> 
-                            @elseif ($sizeMode == 'by_cartons')
-                            <span class="fw-bold">
-                            Cartons
-                        </span> 
-                            @elseif ($sizeMode == 'by_size')
-                            <span class="fw-bold">
-                                    
-                                {{ number_format($totalM2Line, 4) }}
-                            </span> m²
-                                @endif
+                            <span class="fw-bold">{{ $unitName }}</span>
                         </td>
 
                         <td class="text-end" style="vertical-align: middle;">
