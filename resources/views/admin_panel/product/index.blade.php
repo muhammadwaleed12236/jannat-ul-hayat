@@ -142,7 +142,7 @@
                     <a href="create_prodcut" class="action-btn primary"><i class="fas fa-plus"></i> Add Product</a>
                 @endif
                 <a href="{{ route('product.export') }}" class="action-btn secondary"><i class="fas fa-file-export"></i> Export CSV</a>
-                <button type="button" class="action-btn secondary" data-bs-toggle="modal" data-bs-target="#importModal"><i class="fas fa-file-import"></i> Import CSV</button>
+                <button type="button" class="action-btn secondary" data-toggle="modal" data-target="#importModal"><i class="fas fa-file-import"></i> Import CSV</button>
             </div>
         </div>
 
@@ -394,31 +394,139 @@
 
     <!-- Import CSV Modal -->
     <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content border-0 shadow-sm">
-                <div class="modal-header bg-white border-bottom-0 pb-0">
-                    <h5 class="modal-title font-weight-bold text-dark">Import Products CSV</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                <div class="modal-header bg-white border-bottom pb-3 align-items-start">
+                    <div>
+                        <h5 class="modal-title font-weight-bold text-dark mb-0">
+                            <i class="fas fa-file-csv text-primary me-2"></i> Import / Edit Products CSV
+                        </h5>
+                        <small class="text-muted" id="importSubtitle">Fetching products from database…</small>
+                    </div>
+                    <!-- Step pills -->
+                    <div class="d-flex align-items-center gap-2 mx-auto" id="stepPills" style="font-size:.72rem">
+                        <span class="badge rounded-pill px-3 py-2" id="pill1" style="background:#4f46e5;color:#fff">1 · Edit</span>
+                        <i class="fas fa-chevron-right text-muted" style="font-size:.6rem"></i>
+                        <span class="badge rounded-pill px-3 py-2" id="pill2" style="background:#e2e8f0;color:#64748b">2 · Download CSV</span>
+                        <i class="fas fa-chevron-right text-muted" style="font-size:.6rem"></i>
+                        <span class="badge rounded-pill px-3 py-2" id="pill3" style="background:#e2e8f0;color:#64748b">3 · Upload &amp; Save</span>
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
                 </div>
-                <div class="modal-body bg-light p-3">
-                    <form action="{{ route('product.import') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group">
-                            <label for="csvFile" class="font-weight-bold">Select CSV File</label>
-                            <input type="file" name="csv" id="csvFile" class="form-control" accept=".csv,.txt" required>
+
+                <div class="modal-body p-0" style="min-height:320px">
+
+                    {{-- Loading state --}}
+                    <div id="importLoading" class="d-flex flex-column align-items-center justify-content-center py-5">
+                        <div class="spinner-border text-primary mb-3" style="width:2rem;height:2rem"></div>
+                        <p class="text-muted mb-0" style="font-size:.82rem">Loading products from database…</p>
+                    </div>
+
+                    {{-- STEP 1 : Editable Excel-like grid --}}
+                    <div id="importStep1" class="d-none">
+                        <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-white flex-wrap gap-2">
+                            <div style="font-size:.78rem">
+                                <i class="fas fa-pencil-alt text-primary me-1"></i>
+                                <strong id="gridRowCount">0</strong> products loaded — click any cell to edit, then download.
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <button id="addNewRowBtn" class="btn btn-sm btn-outline-success" style="font-size:.72rem;border-radius:6px">
+                                    <i class="fas fa-plus me-1"></i> Add Row
+                                </button>
+                                <button id="downloadCsvBtn" class="btn btn-sm btn-primary" style="font-size:.72rem;border-radius:6px">
+                                    <i class="fas fa-download me-1"></i> Download Edited CSV
+                                </button>
+                            </div>
                         </div>
-                        <p class="mt-2 mb-0 text-muted"><strong>Required Columns:</strong> item_code, item_name, category_id, sub_category_id, brand_id, height, width, pieces_per_box, purchase_price_per_piece, sale_price_per_piece, etc. Ensure the CSV header matches these fields.</p>
-                        <div class="mt-3 text-right">
-                            <button type="submit" class="btn btn-primary">Import</button>
+                        <div style="overflow:auto;max-height:380px;">
+                            <table id="editGrid" class="table table-bordered table-sm mb-0" style="font-size:.72rem;min-width:1100px;table-layout:auto">
+                                <thead id="editGridHead"></thead>
+                                <tbody id="editGridBody"></tbody>
+                            </table>
                         </div>
-                    </form>
+                        <div class="px-3 py-2 bg-light border-top text-muted" style="font-size:.71rem">
+                            <i class="fas fa-info-circle text-primary me-1"></i>
+                            Edit values directly in the table above. <strong>item_code</strong> is the unique key — existing codes = <span class="badge bg-warning text-dark" style="font-size:.6rem">update</span>, new codes = <span class="badge bg-success text-white" style="font-size:.6rem">insert</span>.
+                            After editing, click <strong>Download Edited CSV</strong>, then move to Step 3 to upload.
+                        </div>
+                    </div>
+
+                    {{-- STEP 3 : Upload edited CSV --}}
+                    <div id="importStep3" class="d-none p-3">
+                        <div class="alert alert-success py-2 mb-3" style="font-size:.8rem">
+                            <i class="fas fa-check-circle me-1"></i>
+                            CSV downloaded! Open it in Excel / Google Sheets, make any final changes, save as CSV, then upload below.
+                        </div>
+                        <div id="uploadDropZone" style="border:2px dashed #c7d2fe;border-radius:10px;padding:32px 20px;text-align:center;cursor:pointer;background:#f8f9ff;transition:border-color .2s,background .2s">
+                            <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                            <p class="mb-1 fw-semibold text-dark" style="font-size:.85rem">Drag & drop your edited CSV here</p>
+                            <p class="mb-2 text-muted" style="font-size:.75rem">or click to browse</p>
+                            <input type="file" id="uploadCsvInput" accept=".csv,.txt" style="display:none">
+                            <span id="uploadFileName" class="badge bg-light text-muted border" style="font-size:.72rem">No file selected</span>
+                        </div>
+                        <div id="uploadParseError" class="alert alert-danger py-2 mt-2 d-none" style="font-size:.8rem"></div>
+
+                        {{-- Upload preview --}}
+                        <div id="uploadPreviewWrap" class="mt-3 d-none">
+                            <div class="d-flex align-items-center justify-content-between mb-1" style="font-size:.78rem">
+                                <span class="fw-semibold text-dark"><i class="fas fa-table text-primary me-1"></i> <span id="uploadPreviewCount"></span></span>
+                                <button type="button" id="resetUploadBtn" class="btn btn-sm btn-outline-secondary" style="font-size:.7rem;border-radius:6px"><i class="fas fa-redo me-1"></i> Change file</button>
+                            </div>
+                            <div style="overflow:auto;max-height:260px;">
+                                <table class="table table-bordered table-sm mb-0" style="font-size:.71rem;min-width:900px">
+                                    <thead id="uploadPreviewHead" class="table-light"></thead>
+                                    <tbody id="uploadPreviewBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="modal-footer border-top-0 py-2 bg-white rounded-bottom">
+
+                <div class="modal-footer border-top py-2 bg-white d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-dismiss="modal">Close</button>
+                    <div class="d-flex gap-2">
+                        <button type="button" id="goToUploadBtn" class="btn btn-outline-primary btn-sm rounded-pill px-3 d-none" style="font-size:.78rem">
+                            <i class="fas fa-arrow-right me-1"></i> Go to Upload Step
+                        </button>
+                        <button type="button" id="confirmUploadBtn" class="btn btn-primary btn-sm rounded-pill px-4 d-none" disabled>
+                            <i class="fas fa-save me-1"></i> <span id="confirmUploadText">Save to Database</span>
+                        </button>
+                    </div>
                 </div>
+
+                {{-- Hidden form --}}
+                <form id="realImportForm" action="{{ route('product.import') }}" method="POST" enctype="multipart/form-data" style="display:none">
+                    @csrf
+                    <input type="file" name="csv" id="hiddenCsvInput">
+                </form>
+
             </div>
         </div>
     </div>
+
+    <style>
+    #editGrid thead th {
+        white-space:nowrap; font-size:.63rem; padding:5px 7px;
+        background:#f1f5f9; font-weight:700; text-transform:uppercase;
+        letter-spacing:.04em; color:#64748b; position:sticky; top:0; z-index:2;
+    }
+    #editGrid tbody td { padding:0; vertical-align:middle; }
+    #editGrid tbody td input {
+        border:none; outline:none; background:transparent;
+        width:100%; padding:4px 7px; font-size:.72rem; color:#0f172a;
+        min-width:80px;
+    }
+    #editGrid tbody td input:focus { background:#eef2ff; }
+    #editGrid tbody tr:nth-child(even) td { background:#fafbfc; }
+    #editGrid tbody tr:nth-child(even) td input:not(:focus) { background:transparent; }
+    #editGrid tbody td.del-cell { width:28px; text-align:center; padding:0; }
+    #editGrid tbody td.del-cell button { border:none;background:none;color:#ef4444;font-size:.75rem;cursor:pointer;padding:4px 6px; }
+    #uploadDropZone.dragover { border-color:#4f46e5;background:#eef2ff; }
+    #uploadPreviewHead th { white-space:nowrap;font-size:.63rem;padding:5px 8px;background:#f8fafc;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:#64748b; }
+    #uploadPreviewBody td { padding:4px 8px;font-size:.71rem;white-space:nowrap; }
+    </style>
 @endsection
 
 @section('js')
@@ -585,5 +693,315 @@
         });
         $('#search_all').on('keyup', function() { table.search(this.value).draw(); });
     });
+
+    // ===== IMPORT CSV — 3-Step Flow =====
+    // Step 1: Modal opens → fetch products from DB → editable grid
+    // Step 2: User edits → Download CSV
+    // Step 3: Re-upload edited CSV → save to DB
+    (function () {
+        const COLS = ['item_code','item_name','category','subcategory','brand','unit',
+                      'size_mode','height','width','pieces_per_box','price_per_m2',
+                      'purchase_price_per_m2','sale_price_per_box','sale_price_per_piece',
+                      'purchase_price_per_piece','purchase_price_per_box','alert_qty'];
+
+        let gridData = []; // rows as objects
+        let uploadFile = null;
+        let uploadRows = [];
+
+        // Elements
+        const loading        = document.getElementById('importLoading');
+        const step1          = document.getElementById('importStep1');
+        const step3          = document.getElementById('importStep3');
+        const subtitle       = document.getElementById('importSubtitle');
+        const gridRowCount   = document.getElementById('gridRowCount');
+        const editGridHead   = document.getElementById('editGridHead');
+        const editGridBody   = document.getElementById('editGridBody');
+        const downloadBtn    = document.getElementById('downloadCsvBtn');
+        const addRowBtn      = document.getElementById('addNewRowBtn');
+        const goToUploadBtn  = document.getElementById('goToUploadBtn');
+        const pill1 = document.getElementById('pill1');
+        const pill2 = document.getElementById('pill2');
+        const pill3 = document.getElementById('pill3');
+        // Step 3 upload
+        const uploadDrop     = document.getElementById('uploadDropZone');
+        const uploadInput    = document.getElementById('uploadCsvInput');
+        const uploadFileName = document.getElementById('uploadFileName');
+        const uploadError    = document.getElementById('uploadParseError');
+        const uploadPreviewWrap = document.getElementById('uploadPreviewWrap');
+        const uploadPreviewCount = document.getElementById('uploadPreviewCount');
+        const uploadPreviewHead  = document.getElementById('uploadPreviewHead');
+        const uploadPreviewBody  = document.getElementById('uploadPreviewBody');
+        const resetUploadBtn = document.getElementById('resetUploadBtn');
+        const confirmUploadBtn = document.getElementById('confirmUploadBtn');
+        const confirmUploadText = document.getElementById('confirmUploadText');
+        const realForm       = document.getElementById('realImportForm');
+        const hiddenCsvInput = document.getElementById('hiddenCsvInput');
+
+        // On modal open → fetch products (Bootstrap 4 event)
+        $('#importModal').on('show.bs.modal', function () {
+            resetModal();
+            fetchProducts();
+        });
+        $('#importModal').on('hidden.bs.modal', resetModal);
+
+        function resetModal() {
+            gridData = []; uploadFile = null; uploadRows = [];
+            loading.classList.remove('d-none');
+            step1.classList.add('d-none');
+            step3.classList.add('d-none');
+            goToUploadBtn.classList.add('d-none');
+            confirmUploadBtn.classList.add('d-none');
+            confirmUploadBtn.disabled = true;
+            uploadPreviewWrap.classList.add('d-none');
+            uploadError.classList.add('d-none');
+            uploadFileName.textContent = 'No file selected';
+            uploadInput.value = '';
+            editGridHead.innerHTML = '';
+            editGridBody.innerHTML = '';
+            setPills(1);
+            subtitle.textContent = 'Fetching products from database…';
+        }
+
+        function setPills(active) {
+            [pill1, pill2, pill3].forEach((p, i) => {
+                if (i + 1 === active) {
+                    p.style.background = '#4f46e5'; p.style.color = '#fff';
+                } else if (i + 1 < active) {
+                    p.style.background = '#d1fae5'; p.style.color = '#065f46';
+                } else {
+                    p.style.background = '#e2e8f0'; p.style.color = '#64748b';
+                }
+            });
+        }
+
+        // ── FETCH from export endpoint ──
+        function fetchProducts() {
+            fetch('{{ route("product.export") }}')
+                .then(r => r.text())
+                .then(csv => {
+                    const parsed = parseCSV(csv);
+                    if (parsed.error) { showFetchError(parsed.error); return; }
+                    // Strip the 'id' column from exported data for cleaner editing
+                    gridData = parsed.rows.map(r => {
+                        const obj = {};
+                        COLS.forEach(c => { obj[c] = r[c] ?? ''; });
+                        return obj;
+                    });
+                    renderGrid();
+                    loading.classList.add('d-none');
+                    step1.classList.remove('d-none');
+                    goToUploadBtn.classList.remove('d-none');
+                    subtitle.textContent = `${gridData.length} products loaded — edit & download, then re-upload to save.`;
+                    gridRowCount.textContent = gridData.length;
+                    setPills(1);
+                })
+                .catch(() => showFetchError('Could not fetch products. Please try again.'));
+        }
+
+        function showFetchError(msg) {
+            loading.innerHTML = `<div class="text-center py-5"><i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i><p class="text-danger mb-0" style="font-size:.82rem">${msg}</p></div>`;
+        }
+
+        // ── RENDER editable grid ──
+        function renderGrid() {
+            // Head
+            let th = '<tr><th style="width:28px"></th>';
+            COLS.forEach(c => { th += `<th>${c}</th>`; });
+            th += '</tr>';
+            editGridHead.innerHTML = th;
+            // Body
+            editGridBody.innerHTML = '';
+            gridData.forEach((row, i) => appendGridRow(row, i));
+        }
+
+        function appendGridRow(row, idx) {
+            const tr = document.createElement('tr');
+            tr.dataset.idx = idx;
+            // Delete cell
+            let delTd = document.createElement('td');
+            delTd.className = 'del-cell';
+            delTd.innerHTML = `<button title="Remove row" onclick="removeGridRow(this)"><i class="fas fa-times"></i></button>`;
+            tr.appendChild(delTd);
+            // Data cells
+            COLS.forEach(col => {
+                const td = document.createElement('td');
+                const inp = document.createElement('input');
+                inp.type = 'text';
+                inp.value = row[col] ?? '';
+                inp.dataset.col = col;
+                inp.addEventListener('change', function () {
+                    const rowIdx = parseInt(this.closest('tr').dataset.idx);
+                    gridData[rowIdx][col] = this.value;
+                });
+                td.appendChild(inp);
+                tr.appendChild(td);
+            });
+            editGridBody.appendChild(tr);
+        }
+
+        window.removeGridRow = function(btn) {
+            const tr = btn.closest('tr');
+            const idx = parseInt(tr.dataset.idx);
+            gridData.splice(idx, 1);
+            renderGrid(); // re-render to fix indices
+            gridRowCount.textContent = gridData.length;
+            subtitle.textContent = `${gridData.length} products — edit & download, then re-upload to save.`;
+        };
+
+        // Add blank row
+        addRowBtn.addEventListener('click', function () {
+            const blank = {};
+            COLS.forEach(c => { blank[c] = ''; });
+            gridData.push(blank);
+            appendGridRow(blank, gridData.length - 1);
+            gridRowCount.textContent = gridData.length;
+            // Scroll to bottom
+            editGridBody.parentElement.scrollTop = editGridBody.parentElement.scrollHeight;
+        });
+
+        // ── DOWNLOAD edited CSV ──
+        downloadBtn.addEventListener('click', function () {
+            // Sync any unsaved input values
+            editGridBody.querySelectorAll('tr').forEach((tr, i) => {
+                tr.querySelectorAll('input').forEach(inp => {
+                    if (i < gridData.length) gridData[i][inp.dataset.col] = inp.value;
+                });
+            });
+            const csvText = buildCSV(COLS, gridData);
+            const blob = new Blob([csvText], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products_edit_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            // Advance pill
+            setPills(2);
+        });
+
+        // Go to upload step
+        goToUploadBtn.addEventListener('click', function () {
+            step1.classList.add('d-none');
+            step3.classList.remove('d-none');
+            goToUploadBtn.classList.add('d-none');
+            setPills(3);
+            subtitle.textContent = 'Upload your edited CSV to save changes to the database.';
+        });
+
+        // ── STEP 3: Upload drop zone ──
+        uploadDrop.addEventListener('click', () => uploadInput.click());
+        uploadDrop.addEventListener('dragover', e => { e.preventDefault(); uploadDrop.classList.add('dragover'); });
+        uploadDrop.addEventListener('dragleave', () => uploadDrop.classList.remove('dragover'));
+        uploadDrop.addEventListener('drop', e => {
+            e.preventDefault(); uploadDrop.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) handleUploadFile(e.dataTransfer.files[0]);
+        });
+        uploadInput.addEventListener('change', () => {
+            if (uploadInput.files[0]) handleUploadFile(uploadInput.files[0]);
+        });
+
+        resetUploadBtn.addEventListener('click', function () {
+            uploadFile = null; uploadRows = [];
+            uploadFileName.textContent = 'No file selected';
+            uploadInput.value = '';
+            uploadPreviewWrap.classList.add('d-none');
+            uploadError.classList.add('d-none');
+            confirmUploadBtn.classList.add('d-none');
+            confirmUploadBtn.disabled = true;
+        });
+
+        function handleUploadFile(file) {
+            uploadFile = file;
+            uploadFileName.textContent = file.name;
+            uploadError.classList.add('d-none');
+            const reader = new FileReader();
+            reader.onload = e => {
+                const parsed = parseCSV(e.target.result);
+                if (parsed.error) {
+                    uploadError.textContent = '⚠ ' + parsed.error;
+                    uploadError.classList.remove('d-none');
+                    uploadPreviewWrap.classList.add('d-none');
+                    confirmUploadBtn.classList.add('d-none');
+                    return;
+                }
+                uploadRows = parsed.rows;
+                renderUploadPreview(parsed.headers, uploadRows);
+            };
+            reader.readAsText(file);
+        }
+
+        function renderUploadPreview(headers, rows) {
+            const show = rows.slice(0, 30);
+            let th = '<tr><th>#</th>';
+            headers.forEach(h => { th += `<th>${escH(h)}</th>`; });
+            th += '</tr>';
+            uploadPreviewHead.innerHTML = th;
+            let tb = '';
+            show.forEach((row, i) => {
+                tb += `<tr><td class="text-muted text-center">${i+1}</td>`;
+                headers.forEach(h => { tb += `<td>${escH(row[h] ?? '') || '<span class="text-muted">—</span>'}</td>`; });
+                tb += '</tr>';
+            });
+            uploadPreviewBody.innerHTML = tb;
+            uploadPreviewCount.innerHTML = `<strong>${rows.length}</strong> row${rows.length!==1?'s':''} ready to import${rows.length>30?' (showing first 30)':''}`;
+            uploadPreviewWrap.classList.remove('d-none');
+            confirmUploadBtn.classList.remove('d-none');
+            confirmUploadBtn.disabled = false;
+            confirmUploadText.textContent = `Save ${rows.length} Product${rows.length!==1?'s':''} to Database`;
+        }
+
+        confirmUploadBtn.addEventListener('click', function () {
+            if (!uploadFile) return;
+            const dt = new DataTransfer();
+            dt.items.add(uploadFile);
+            hiddenCsvInput.files = dt.files;
+            confirmUploadBtn.disabled = true;
+            confirmUploadText.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving…';
+            realForm.submit();
+        });
+
+        // ── CSV helpers ──
+        function parseCSV(text) {
+            const lines = text.trim().split(/\r?\n/);
+            if (lines.length < 2) return { error: 'CSV must have a header row and at least one data row.' };
+            const headers = splitLine(lines[0]);
+            if (!headers.includes('item_code') || !headers.includes('item_name'))
+                return { error: 'Missing required columns: item_code, item_name must be present.' };
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                const cells = splitLine(line);
+                const obj = {};
+                headers.forEach((h, idx) => { obj[h] = cells[idx] ?? ''; });
+                rows.push(obj);
+            }
+            return { headers, rows };
+        }
+
+        function splitLine(line) {
+            const result = []; let cur = ''; let inQ = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (ch === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else { inQ = !inQ; } }
+                else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+                else { cur += ch; }
+            }
+            result.push(cur.trim());
+            return result;
+        }
+
+        function buildCSV(cols, rows) {
+            const escape = v => { v = String(v ?? ''); return (v.includes(',') || v.includes('"') || v.includes('\n')) ? '"' + v.replace(/"/g,'""') + '"' : v; };
+            let out = cols.join(',') + '\n';
+            rows.forEach(row => { out += cols.map(c => escape(row[c])).join(',') + '\n'; });
+            return out;
+        }
+
+        function escH(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+    })();
     </script>
 @endsection
