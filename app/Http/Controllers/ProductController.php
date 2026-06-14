@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Milon\Barcode\DNS1D;
+use App\Http\Requests\ImportProductRequest;
 
 class ProductController extends Controller
 {
@@ -931,4 +932,113 @@ class ProductController extends Controller
             'message'   => $product->is_active ? 'Product activated successfully.' : 'Product deactivated successfully.',
         ]);
     }
+    // ===== Export CSV =====
+    public function exportCsv(Request $request)
+    {
+        $products = Product::with(['category_relation', 'sub_category_relation', 'brand', 'unit'])->get();
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="products_export_'.date('Ymd_His').'.csv"',
+        ];
+        $callback = function () use ($products) {
+            $handle = fopen('php://output', 'w');
+            // Header row
+            fputcsv($handle, [
+                'id', 'item_code', 'item_name', 'category', 'subcategory', 'brand', 'unit',
+                'size_mode', 'height', 'width', 'pieces_per_box', 'price_per_m2',
+                'purchase_price_per_m2', 'sale_price_per_box', 'sale_price_per_piece',
+                'purchase_price_per_piece', 'purchase_price_per_box', 'alert_qty'
+            ]);
+            foreach ($products as $product) {
+                fputcsv($handle, [
+                    $product->id,
+                    $product->item_code,
+                    $product->item_name,
+                    optional($product->category_relation)->name,
+                    optional($product->sub_category_relation)->name,
+                    optional($product->brand)->name,
+                    optional($product->unit)->name,
+                    $product->size_mode,
+                    $product->height,
+                    $product->width,
+                    $product->pieces_per_box,
+                    $product->price_per_m2,
+                    $product->purchase_price_per_m2,
+                    $product->sale_price_per_box,
+                    $product->sale_price_per_piece,
+                    $product->purchase_price_per_piece,
+                    $product->purchase_price_per_box,
+                    $product->alert_qty,
+                ]);
+            }
+            fclose($handle);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // ===== Import CSV =====
+    public function importCsv(ImportProductRequest $request)
+    {
+        $file = $request->file('csv');
+        if (! $file->isValid()) {
+            return back()->withErrors(['csv' => 'Uploaded file is not valid']);
+        }
+        $path = $file->getRealPath();
+        $handle = fopen($path, 'r');
+        if ($handle === false) {
+            return back()->withErrors(['csv' => 'Unable to read the uploaded file']);
+        }
+        $header = fgetcsv($handle);
+        $required = [
+            'item_code', 'item_name', 'category', 'subcategory', 'brand', 'unit',
+            'size_mode', 'height', 'width', 'pieces_per_box', 'price_per_m2',
+            'purchase_price_per_m2', 'sale_price_per_box', 'sale_price_per_piece',
+            'purchase_price_per_piece', 'purchase_price_per_box', 'alert_qty'
+        ];
+        $missing = array_diff($required, $header);
+        if (!empty($missing)) {
+            return back()->withErrors(['csv' => 'Missing required columns: '.implode(', ', $missing)]);
+        }
+        $headerMap = array_flip($header);
+        $rowCount = 0;
+        DB::transaction(function () use ($handle, $headerMap, &$rowCount) {
+            while (($row = fgetcsv($handle)) !== false) {
+                $rowCount++;
+                $data = [];
+                foreach ($headerMap as $col => $idx) {
+                    $data[$col] = $row[$idx] ?? null;
+                }
+                // Find or create related models
+                $category = Category::firstOrCreate(['name' => $data['category']]);
+                $subcat = Subcategory::firstOrCreate(['name' => $data['subcategory'], 'category_id' => $category->id]);
+                $brand = Brand::firstOrCreate(['name' => $data['brand']]);
+                $unit = Unit::firstOrCreate(['name' => $data['unit']]);
+                // Create or update product
+                Product::updateOrCreate(
+                    ['item_code' => $data['item_code']],
+                    [
+                        'item_name' => $data['item_name'],
+                        'category_id' => $category->id,
+                        'sub_category_id' => $subcat->id,
+                        'brand_id' => $brand->id,
+                        'unit_id' => $unit->id,
+                        'size_mode' => $data['size_mode'],
+                        'height' => $data['height'],
+                        'width' => $data['width'],
+                        'pieces_per_box' => $data['pieces_per_box'],
+                        'price_per_m2' => $data['price_per_m2'],
+                        'purchase_price_per_m2' => $data['purchase_price_per_m2'],
+                        'sale_price_per_box' => $data['sale_price_per_box'],
+                        'sale_price_per_piece' => $data['sale_price_per_piece'],
+                        'purchase_price_per_piece' => $data['purchase_price_per_piece'],
+                        'purchase_price_per_box' => $data['purchase_price_per_box'],
+                        'alert_qty' => $data['alert_qty'],
+                    ]
+                );
+            }
+        });
+        fclose($handle);
+        return redirect()->route('product')->with('success', "Import completed. {$rowCount} rows processed.");
+    }
 }
+

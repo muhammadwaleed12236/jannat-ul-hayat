@@ -141,6 +141,8 @@
                 @if (auth()->user()->can('products.create') || auth()->user()->email === 'admin@admin.com')
                     <a href="create_prodcut" class="action-btn primary"><i class="fas fa-plus"></i> Add Product</a>
                 @endif
+                <a href="{{ route('product.export') }}" class="action-btn secondary"><i class="fas fa-file-export"></i> Export CSV</a>
+                <button type="button" class="action-btn secondary" data-bs-toggle="modal" data-bs-target="#importModal"><i class="fas fa-file-import"></i> Import CSV</button>
             </div>
         </div>
 
@@ -385,6 +387,34 @@
                 </div>
                 <div class="modal-footer bg-light border-0 py-2" style="border-radius:0 0 12px 12px;">
                     <button type="button" class="btn btn-secondary btn-sm px-4 rounded-pill" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import CSV Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow-sm">
+                <div class="modal-header bg-white border-bottom-0 pb-0">
+                    <h5 class="modal-title font-weight-bold text-dark">Import Products CSV</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body bg-light p-3">
+                    <form action="{{ route('product.import') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label for="csvFile" class="font-weight-bold">Select CSV File</label>
+                            <input type="file" name="csv" id="csvFile" class="form-control" accept=".csv,.txt" required>
+                        </div>
+                        <p class="mt-2 mb-0 text-muted"><strong>Required Columns:</strong> item_code, item_name, category_id, sub_category_id, brand_id, height, width, pieces_per_box, purchase_price_per_piece, sale_price_per_piece, etc. Ensure the CSV header matches these fields.</p>
+                        <div class="mt-3 text-right">
+                            <button type="submit" class="btn btn-primary">Import</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 py-2 bg-white rounded-bottom">
+                    <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

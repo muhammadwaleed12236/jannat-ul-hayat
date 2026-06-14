@@ -106,6 +106,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/generate-barcode-image/{id?}', [ProductController::class, 'generateBarcode'])->name('generate-barcode-image');
     
     // Bottle Mappings
+    // CSV Export/Import routes for products
+    Route::get('/product/export', [ProductController::class, 'exportCsv'])->name('product.export');
+    Route::post('/product/import', [ProductController::class, 'importCsv'])->name('product.import');
     Route::get('/bottle-mappings', [\App\Http\Controllers\ProductBottleMappingController::class, 'index'])->name('bottle-mappings.index');
     Route::post('/bottle-mappings/bulk-assign', [\App\Http\Controllers\ProductBottleMappingController::class, 'bulkAssign'])->name('bottle-mappings.bulk-assign');
     Route::get('/bottle-mappings/delete/{id}', [\App\Http\Controllers\ProductBottleMappingController::class, 'delete'])->name('bottle-mappings.delete');
