@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
     // Bottle Mappings
     // CSV Export/Import routes for products
     Route::get('/product/export', [ProductController::class, 'exportCsv'])->name('product.export');
+    Route::get('/product/import', [ProductController::class, 'showImportForm'])->name('product.import.form');
     Route::post('/product/import', [ProductController::class, 'importCsv'])->name('product.import');
     Route::get('/bottle-mappings', [\App\Http\Controllers\ProductBottleMappingController::class, 'index'])->name('bottle-mappings.index');
     Route::post('/bottle-mappings/bulk-assign', [\App\Http\Controllers\ProductBottleMappingController::class, 'bulkAssign'])->name('bottle-mappings.bulk-assign');

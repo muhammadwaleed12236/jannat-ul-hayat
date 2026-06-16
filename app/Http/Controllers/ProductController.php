@@ -976,6 +976,15 @@ class ProductController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    // ===== Show Import Form =====
+    public function showImportForm()
+    {
+        $categories = Category::all();
+        $brands = Brand::all();
+        $units = Unit::all();
+        return view('admin_panel.product.import', compact('categories', 'brands', 'units'));
+    }
+
     // ===== Import CSV =====
     public function importCsv(ImportProductRequest $request)
     {
@@ -997,48 +1006,137 @@ class ProductController extends Controller
         ];
         $missing = array_diff($required, $header);
         if (!empty($missing)) {
+            fclose($handle);
             return back()->withErrors(['csv' => 'Missing required columns: '.implode(', ', $missing)]);
         }
         $headerMap = array_flip($header);
-        $rowCount = 0;
-        DB::transaction(function () use ($handle, $headerMap, &$rowCount) {
-            while (($row = fgetcsv($handle)) !== false) {
-                $rowCount++;
-                $data = [];
-                foreach ($headerMap as $col => $idx) {
-                    $data[$col] = $row[$idx] ?? null;
-                }
-                // Find or create related models
-                $category = Category::firstOrCreate(['name' => $data['category']]);
-                $subcat = Subcategory::firstOrCreate(['name' => $data['subcategory'], 'category_id' => $category->id]);
-                $brand = Brand::firstOrCreate(['name' => $data['brand']]);
-                $unit = Unit::firstOrCreate(['name' => $data['unit']]);
-                // Create or update product
-                Product::updateOrCreate(
-                    ['item_code' => $data['item_code']],
-                    [
-                        'item_name' => $data['item_name'],
-                        'category_id' => $category->id,
-                        'sub_category_id' => $subcat->id,
-                        'brand_id' => $brand->id,
-                        'unit_id' => $unit->id,
-                        'size_mode' => $data['size_mode'],
-                        'height' => $data['height'],
-                        'width' => $data['width'],
-                        'pieces_per_box' => $data['pieces_per_box'],
-                        'price_per_m2' => $data['price_per_m2'],
-                        'purchase_price_per_m2' => $data['purchase_price_per_m2'],
-                        'sale_price_per_box' => $data['sale_price_per_box'],
-                        'sale_price_per_piece' => $data['sale_price_per_piece'],
-                        'purchase_price_per_piece' => $data['purchase_price_per_piece'],
-                        'purchase_price_per_box' => $data['purchase_price_per_box'],
-                        'alert_qty' => $data['alert_qty'],
-                    ]
-                );
+        $rowNumber = 0;
+        $imported = 0;
+        $skipped = 0;
+        $errors = [];
+        $existingCodes = Product::pluck('item_code')->filter()->values()->toArray();
+        DB::beginTransaction();
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+            $data = [];
+            foreach ($headerMap as $col => $idx) {
+                $data[$col] = $row[$idx] ?? null;
             }
-        });
+            $data['item_code'] = trim($data['item_code'] ?? '');
+            $data['item_name'] = trim($data['item_name'] ?? '');
+            if (empty($data['item_code']) || empty($data['item_name'])) {
+                $skipped++;
+                $errors[] = "Row {$rowNumber}: Skipped — missing Product Code or Name.";
+                continue;
+            }
+            $piecesPerBox = $data['pieces_per_box'] ?? '';
+            if ($piecesPerBox !== '' && !is_numeric($piecesPerBox)) {
+                $skipped++;
+                $errors[] = "Row {$rowNumber} (Code: {$data['item_code']}): Skipped — Pieces Per Box must be numeric.";
+                continue;
+            }
+            if (in_array($data['item_code'], $existingCodes)) {
+                $skipped++;
+                $errors[] = "Row {$rowNumber} (Code: {$data['item_code']}): Skipped — Product Code already exists.";
+                continue;
+            }
+            $categoryId = null;
+            $subcategoryId = null;
+            $brandId = null;
+            $unitId = null;
+            if (!empty(trim($data['category'] ?? ''))) {
+                $cat = Category::firstOrCreate(['name' => trim($data['category'])]);
+                $categoryId = $cat->id;
+                if (!empty(trim($data['subcategory'] ?? ''))) {
+                    $subcat = Subcategory::firstOrCreate(['name' => trim($data['subcategory']), 'category_id' => $categoryId]);
+                    $subcategoryId = $subcat->id;
+                }
+            }
+            $brandName = trim($data['brand'] ?? '');
+            if (empty($brandName)) {
+                $skipped++;
+                $errors[] = "Row {$rowNumber} (Code: {$data['item_code']}): Skipped — Brand is required.";
+                continue;
+            }
+            $brand = Brand::where('name', $brandName)->first();
+            if (!$brand) {
+                $skipped++;
+                $errors[] = "Row {$rowNumber} (Code: {$data['item_code']}): Skipped — Brand '{$brandName}' not found in system.";
+                continue;
+            }
+            $brandId = $brand->id;
+            $unitName = trim($data['unit'] ?? '');
+            if (!empty($unitName)) {
+                $unit = Unit::where('name', $unitName)->first();
+                if (!$unit) {
+                    $skipped++;
+                    $errors[] = "Row {$rowNumber} (Code: {$data['item_code']}): Skipped — Unit '{$unitName}' not found in system.";
+                    continue;
+                }
+                $unitId = $unit->id;
+            }
+            try {
+                $sizeMode = $data['size_mode'] ?? 'by_size';
+                $height = (float) ($data['height'] ?? 0);
+                $width = (float) ($data['width'] ?? 0);
+                $piecesPerBox = (int) ($data['pieces_per_box'] ?? 0);
+                $totalM2 = 0;
+                if ($sizeMode === 'by_size') {
+                    $m2PerBox = (($height * $width) / 10000) * $piecesPerBox;
+                    $totalM2 = $m2PerBox;
+                }
+                $productData = [
+                    'item_code' => $data['item_code'],
+                    'item_name' => $data['item_name'],
+                    'category_id' => $categoryId,
+                    'sub_category_id' => $subcategoryId,
+                    'brand_id' => $brandId,
+                    'unit_id' => $unitId,
+                    'size_mode' => $sizeMode,
+                    'height' => $height,
+                    'width' => $width,
+                    'pieces_per_box' => $piecesPerBox,
+                    'total_m2' => $totalM2,
+                    'price_per_m2' => $data['price_per_m2'] ?? 0,
+                    'purchase_price_per_m2' => $data['purchase_price_per_m2'] ?? 0,
+                    'sale_price_per_box' => $data['sale_price_per_box'] ?? 0,
+                    'sale_price_per_piece' => $data['sale_price_per_piece'] ?? 0,
+                    'purchase_price_per_piece' => $data['purchase_price_per_piece'] ?? 0,
+                    'purchase_price_per_box' => $data['purchase_price_per_box'] ?? 0,
+                    'creater_id' => auth()->id(),
+                ];
+                if (isset($data['alert_qty']) && $data['alert_qty'] !== '') {
+                    $productData['alert_qty'] = $data['alert_qty'];
+                }
+                Product::create($productData);
+                $existingCodes[] = $data['item_code'];
+                $imported++;
+            } catch (\Exception $e) {
+                $skipped++;
+                $errors[] = "Row {$rowNumber} (Code: {$data['item_code']}): Error — " . $e->getMessage();
+            }
+        }
         fclose($handle);
-        return redirect()->route('product')->with('success', "Import completed. {$rowCount} rows processed.");
+        DB::commit();
+        if ($skipped > 0 && $imported === 0) {
+            DB::rollBack();
+            $summary = "Import failed. All {$skipped} rows had errors.";
+            $errorCsv = $this->generateErrorLog($errors);
+            return back()->with('import_errors', $summary)->with('error_log_csv', $errorCsv);
+        } elseif ($skipped > 0) {
+            $errorCsv = $this->generateErrorLog($errors);
+            return redirect()->route('product.import.form')->with('success', "{$imported} products imported successfully, {$skipped} rows skipped due to errors.")->with('import_errors', $errors)->with('error_log_csv', $errorCsv);
+        }
+        return redirect()->route('product')->with('success', "{$imported} products imported successfully.");
+    }
+
+    private function generateErrorLog(array $errors)
+    {
+        $csv = "Row,Error\n";
+        foreach ($errors as $error) {
+            $csv .= '"' . str_replace('"', '""', $error) . '"' . "\n";
+        }
+        return $csv;
     }
 }
 

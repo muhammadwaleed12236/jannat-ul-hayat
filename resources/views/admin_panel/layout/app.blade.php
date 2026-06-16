@@ -487,9 +487,11 @@
 
                                                     @can('products.view')
                                                         <li><a href="{{ route('product') }}"><i class="fas fa-box"></i>
-                                                                Products</a></li>
+                                                                 Products</a></li>
+                                                        <li><a href="{{ route('product.import.form') }}"><i class="fas fa-file-import"></i>
+                                                                 Import Products</a></li>
                                                         <li><a href="{{ route('bottle-mappings.index') }}"><i class="fas fa-flask"></i>
-                                                                Bottle Mapping</a></li>
+                                                                 Bottle Mapping</a></li>
                                                     @endcan
 
                                                     @can('discount.products.view')

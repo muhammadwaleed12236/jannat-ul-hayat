@@ -142,7 +142,7 @@
                     <a href="create_prodcut" class="action-btn primary"><i class="fas fa-plus"></i> Add Product</a>
                 @endif
                 <a href="{{ route('product.export') }}" class="action-btn secondary"><i class="fas fa-file-export"></i> Export CSV</a>
-                <button type="button" class="action-btn secondary" data-toggle="modal" data-target="#importModal"><i class="fas fa-file-import"></i> Import CSV</button>
+                <a href="{{ route('product.import.form') }}" class="action-btn secondary"><i class="fas fa-file-import"></i> Import CSV</a>
             </div>
         </div>
 
