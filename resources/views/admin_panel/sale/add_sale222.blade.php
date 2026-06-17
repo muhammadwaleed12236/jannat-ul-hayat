@@ -924,9 +924,8 @@
         });
     </script>
         @if (isset($sale))
-    <script>
-        // Pre-defined safe PHP data for JS (uses JSON to avoid unescaped strings breaking JS)
-        var editSaleData = @json([
+    @php
+        $editSaleDataArr = [
             'id' => $sale->id,
             'customer_id' => $sale->customer_id,
             'walkin_name' => $sale->walkin_name,
@@ -943,7 +942,11 @@
                 'balance_range' => $sale->customer_relation->balance_range,
                 'sales_officer_id' => $sale->customer_relation->sales_officer_id,
             ] : null,
-        ]);
+        ];
+    @endphp
+    <script>
+        // Pre-defined safe PHP data for JS (uses JSON to avoid unescaped strings breaking JS)
+        var editSaleData = @json($editSaleDataArr);
 
         // Fallback: hide loader after 8 sec regardless (outside ready() so it always fires)
         var editLoaderTimeout = setTimeout(function() {
